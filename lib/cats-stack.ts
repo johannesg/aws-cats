@@ -12,21 +12,21 @@ export class CatsStack extends cdk.Stack {
     super(scope, id, props);
 
     // The code that defines your stack goes here
-    new s3.Bucket(this, 'cats', {
-      versioned: true,
-      // publicReadAccess: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY
-    });
+    // new s3.Bucket(this, 'cats', {
+    //   versioned: true,
+    //   // publicReadAccess: true,
+    //   removalPolicy: cdk.RemovalPolicy.DESTROY
+    // });
 
-    const catsHandler = new lambda.Function(this, 'CatsHandler', {
-      runtime: lambda.Runtime.NODEJS_12_X,
-      code: lambda.Code.fromAsset('app/lambda'),
-      handler: 'index.handler'
-    });
+    // const catsHandler = new lambda.Function(this, 'CatsHandler', {
+    //   runtime: lambda.Runtime.NODEJS_12_X,
+    //   code: lambda.Code.fromAsset('app/lambda'),
+    //   handler: 'index.handler'
+    // });
 
-    new apigw.LambdaRestApi(this, 'CatsEndpoint', {
-      handler: catsHandler
-    });
+    // new apigw.LambdaRestApi(this, 'CatsEndpoint', {
+    //   handler: catsHandler
+    // });
 
     const auth = new CatsAuthentication(this, "Auth");
 

@@ -17,6 +17,7 @@ type Cats {
 type Query {
     cats: Cats
     me: User
+    hello: String
 }
 
 input CredentialsInput {
