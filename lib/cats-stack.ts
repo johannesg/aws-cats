@@ -4,6 +4,8 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as apigw from '@aws-cdk/aws-apigateway';
 // import { HitCounter } from './hitcounter.js';
+import { CatsAuthentication } from './cats-auth';
+import { CatsApi } from './cats-api';
 
 export class CatsStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps | undefined) {
@@ -25,6 +27,10 @@ export class CatsStack extends cdk.Stack {
     new apigw.LambdaRestApi(this, 'CatsEndpoint', {
       handler: catsHandler
     });
+
+    const auth = new CatsAuthentication(this, "Auth");
+
+    const api = new CatsApi(this, "Api", { auth });
 
     // const hitCounter = new HitCounter(this, 'CatsHitCounter', {
     //   downstream: catsHandler
