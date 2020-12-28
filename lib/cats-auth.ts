@@ -24,9 +24,23 @@ export class CatsAuthentication extends cdk.Construct {
             }
         });
 
-        const userPoolClient = new UserPoolClient(this, "UserPoolClient", {
-            userPool: this.userPool
+        const domain = this.userPool.addDomain("CatsDomain", {
+            cognitoDomain: {
+                domainPrefix: "jogus-cats"
+            }
         });
+
+        const userPoolClient = new UserPoolClient(this, "UserPoolClient", {
+            userPool: this.userPool,
+            authFlows: {
+                userPassword: true,
+                // adminUserPassword: true,
+                userSrp: true
+            }
+        });
+
+        new cdk.CfnOutput(this, "CognitoBaseUrl", { value: domain.baseUrl() })
+        // new cdk.CfnOutput(this, "CognitoSigninUrl", { value: signInUrl });
 
         new cdk.CfnOutput(this, "UserPoolId", { value: this.userPool.userPoolId });
         new cdk.CfnOutput(this, "UserPoolClientId", { value: userPoolClient.userPoolClientId });

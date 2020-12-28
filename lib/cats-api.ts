@@ -30,6 +30,7 @@ export class CatsApi extends cdk.Construct {
 
         const lambdaDS = api.addLambdaDataSource("graphql", graphqlHandler);
         lambdaDS.createResolver({typeName: "Query", fieldName: "hello"})
+        lambdaDS.createResolver({typeName: "Query", fieldName: "me"})
 
         new cdk.CfnOutput(this, "GraphQLAPIURL", { value: api.graphqlUrl });
     }
