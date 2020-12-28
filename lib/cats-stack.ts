@@ -33,7 +33,7 @@ export class CatsStack extends cdk.Stack {
 
     const appsync = new CatsApi(this, "Api", { auth });
 
-    const api = new CatsApi2(this, "Api2", { auth });
+    // const api = new CatsApi2(this, "Api2", { auth });
 
     // const hitCounter = new HitCounter(this, 'CatsHitCounter', {
     //   downstream: catsHandler

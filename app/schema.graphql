@@ -19,24 +19,3 @@ type Query {
     me: User
     hello: String
 }
-
-input CredentialsInput {
-    email: String!
-    password: String!
-}
-
-type AuthPayload {
-    token: String
-    user: User
-}
-
-type UserOps {
-    register(email: String!, password: String!): AuthPayload
-    login(email: String!, password: String!): AuthPayload
-}
-
-type Mutation {
-    user: UserOps
-    # registerUser(email: String!, password: String!): AuthPayload
-    # login(email: String!, password: String!): AuthPayload
-}

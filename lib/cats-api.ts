@@ -22,13 +22,13 @@ export class CatsApi extends cdk.Construct {
             schema: Schema.fromAsset("app/schema.graphql")
         });
 
-        const graphqlHandler = new Function(this, 'GraphQLHandler', {
+        const handler = new Function(this, 'GraphQLHandler', {
             runtime: Runtime.NODEJS_12_X,
-            code: Code.fromAsset('app/lambda'),
-            handler: 'graphqlLambda.handler'
+            code: Code.fromAsset('app/lambda/graphql'),
+            handler: 'handler.handler'
         });
 
-        const lambdaDS = api.addLambdaDataSource("graphql", graphqlHandler);
+        const lambdaDS = api.addLambdaDataSource("graphql", handler);
         lambdaDS.createResolver({typeName: "Query", fieldName: "hello"})
         lambdaDS.createResolver({typeName: "Query", fieldName: "me"})
 
