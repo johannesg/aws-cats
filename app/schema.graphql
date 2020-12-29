@@ -1,3 +1,18 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    cats: Cats
+    me: User
+    hello: String
+}
+
+type Mutation {
+    setFavourite(catId: ID!): Cat
+}
+
 type User {
     id: ID!
     email: String!
@@ -12,10 +27,4 @@ type Cat {
 
 type Cats {
     random(pageSize: Int = 10): [Cat]
-}
-
-type Query {
-    cats: Cats
-    me: User
-    hello: String
 }

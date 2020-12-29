@@ -7,19 +7,20 @@ export interface CatsApi2Props {
     auth: CatsAuthentication
 }
 
-export class CatsApi2 extends cdk.Construct {
+export class CatsApiApollo extends cdk.Construct {
     constructor(scope: cdk.Construct, id: string, props: CatsApi2Props) {
         super(scope, id);
 
-        const handler = new Function(this, 'GraphQL2Handler', {
+        const handler = new Function(this, 'ApolloHandler', {
             runtime: Runtime.NODEJS_12_X,
-            code: Code.fromAsset('app/lambda'),
+            code: Code.fromAsset('../app/lambda/apollo'),
             handler: 'index.handler'
         });
 
-        const api = new RestApi(this, "CatsApi2", {
-            restApiName: "cats-api-2"
+        const api = new RestApi(this, "CatsApiApollo", {
+            restApiName: "cats-api-apollo"
         })
+
         const auth = new CfnAuthorizer(this, "APIGatewayAuthorizer", {
             name: "cats-authorizer",
             identitySource: "method.request.header.Authorization",
@@ -38,8 +39,5 @@ export class CatsApi2 extends cdk.Construct {
             authorizationType: AuthorizationType.COGNITO,
             authorizer: { authorizerId: auth.ref }
         });
-        // new LambdaRestApi(this, 'CatsEndpoint', {
-        //     handler: handler
-        // });
     }
 }

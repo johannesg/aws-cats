@@ -6,7 +6,7 @@ import * as apigw from '@aws-cdk/aws-apigateway';
 // import { HitCounter } from './hitcounter.js';
 import { CatsAuthentication } from './cats-auth';
 import { CatsApi } from './cats-api';
-import { CatsApi2 } from './cats-api2';
+import { CatsApiApollo } from './cats-api-apollo';
 
 export class CatsStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps | undefined) {
@@ -33,7 +33,7 @@ export class CatsStack extends cdk.Stack {
 
     const appsync = new CatsApi(this, "Api", { auth });
 
-    // const api = new CatsApi2(this, "Api2", { auth });
+    const api = new CatsApiApollo(this, "ApiApollo", { auth });
 
     // const hitCounter = new HitCounter(this, 'CatsHitCounter', {
     //   downstream: catsHandler

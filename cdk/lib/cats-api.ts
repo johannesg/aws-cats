@@ -19,12 +19,12 @@ export class CatsApi extends cdk.Construct {
                     userPoolConfig: { userPool: props.auth.userPool }
                 }
             },
-            schema: Schema.fromAsset("app/schema.graphql")
+            schema: Schema.fromAsset("../app/schema.graphql")
         });
 
         const handler = new Function(this, 'GraphQLHandler', {
             runtime: Runtime.NODEJS_12_X,
-            code: Code.fromAsset('app/lambda/graphql'),
+            code: Code.fromAsset('../app/lambda/graphql'),
             handler: 'handler.handler'
         });
 

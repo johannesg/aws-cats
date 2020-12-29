@@ -21,6 +21,7 @@ interface AppSyncEvent {
     },
 
     info: GraphQLInfo
+    arguments: Record<string, any>
 }
 
 async function resolveQuery(event: AppSyncEvent) {
@@ -37,6 +38,7 @@ async function resolveQuery(event: AppSyncEvent) {
 }
 
 export async function handler(event: AppSyncEvent) {
+    console.log(event);
 
     switch (event.info.parentTypeName) {
         case "Query":
