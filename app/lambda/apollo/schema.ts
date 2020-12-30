@@ -1,9 +1,23 @@
 
 import { gql } from "apollo-server-lambda"
 
-// const UserResolvers = import("./resolvers/user");
-
 export default gql`
+    schema {
+        query: Query
+        # mutation: Mutation
+    }
+
+    type Query {
+        cats: Cats
+        me: User
+    }
+
+    # type Mutation {
+        # user: UserOps
+        # registerUser(email: String!, password: String!): AuthPayload
+        # login(email: String!, password: String!): AuthPayload
+    # }
+
     type User {
         id: ID!
         email: String!
@@ -18,31 +32,5 @@ export default gql`
 
     type Cats {
         random(pageSize: Int = 10): [Cat]
-    }
-
-    type Query {
-        cats: Cats
-        me: User
-    }
-
-    input CredentialsInput {
-        email: String!
-        password: String!
-    }
-
-    type AuthPayload {
-        token: String
-        user: User
-    }
-
-    type UserOps {
-        register(email: String!, password: String!): AuthPayload
-        login(email: String!, password: String!): AuthPayload
-    }
-
-    type Mutation {
-        user: UserOps
-        # registerUser(email: String!, password: String!): AuthPayload
-        # login(email: String!, password: String!): AuthPayload
     }
 `;

@@ -5,23 +5,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handler = void 0;
 const apollo_server_lambda_1 = require("apollo-server-lambda");
-// const { initCosmos } = require("./datasources/cosmosdb");
-// const { UserAPI } = require("./datasources/user");
 const cats_1 = require("./datasources/cats");
-// const { verifyToken } = require('./utils/jwt');
 const schema_1 = __importDefault(require("./schema"));
 const resolvers_1 = require("./resolvers");
 // require("./datasources/dynamodb");
-// let containers = {};
 console.log(`Starting up`);
-function getUserFromToken(req) {
-    const Authorization = req.headers.Authorization;
-    if (Authorization) {
-        // const token = Authorization.replace('Bearer ', '');
-        // const user = verifyToken(token);
-        return { id: "kalle", email: "olle" };
-    }
-    return null;
+function getFakeUser(req) {
+    return {
+        groups: ["Admin"],
+        id: "kalle",
+        email: "olle"
+    };
 }
 function getUserFromClaims(claims) {
     const groups = claims['cognito:groups'].split(',');
@@ -52,20 +46,14 @@ const server = new apollo_server_lambda_1.ApolloServer({
     },
     context: (ctx) => {
         var _a, _b;
-        const { context, event } = ctx;
-        // console.log(`Context: ${ctx}`);
-        console.log(ctx);
-        // console.log(event.requestContext?.authorizer?.claims);
+        const { event } = ctx;
+        // console.log(ctx);
         const claims = (_b = (_a = event.requestContext) === null || _a === void 0 ? void 0 : _a.authorizer) === null || _b === void 0 ? void 0 : _b.claims;
-        if (claims !== null && claims !== undefined) {
-            const user = getUserFromClaims(claims);
-            console.log(user);
-            return {
-                user
-            };
-        }
+        const user = claims !== null && claims !== undefined
+            ? getUserFromClaims(claims)
+            : getFakeUser(event);
         return {
-            user: getUserFromToken(event)
+            user
         };
     },
     plugins: [

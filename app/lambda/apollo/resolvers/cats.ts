@@ -1,7 +1,7 @@
-import { Context } from "../types"
+import { CatsResolvers, Context } from "../types"
 
-export const Cats = {
-        random: async (_ : any, { pageSize } : { pageSize: number}, { dataSources: { CatsAPI } } : Context) => {
+export const Cats : CatsResolvers = {
+        random: async (_, { pageSize }, { dataSources: { CatsAPI } }) => {
             return await CatsAPI.getRandomCats(pageSize);
             // return [
             //     {

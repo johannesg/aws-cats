@@ -1,11 +1,12 @@
-import { Context } from '../types';
+import { Context, Resolvers } from '../types';
+import { IResolvers } from 'graphql-tools';
 import { Cats } from './cats'
 
 // import { UserOps } from './user'
 
-export const resolvers = {
+export const resolvers : Resolvers = {
     Query: {
-        me: (_ : any, __ : any, { user } : Context ) => user,
+        me: (_, __, { user }) => user,
         cats: () => ({})
     },
 
@@ -13,7 +14,7 @@ export const resolvers = {
 
     // UserOps,
 
-    Mutation: {
-        user: () => ({})
-    }
+    // Mutation: {
+    //     user: () => ({})
+    // }
 };

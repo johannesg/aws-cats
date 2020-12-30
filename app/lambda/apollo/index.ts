@@ -1,31 +1,26 @@
 
 import { ApolloServer } from "apollo-server-lambda"
 
-// const { initCosmos } = require("./datasources/cosmosdb");
-// const { UserAPI } = require("./datasources/user");
 import { CatsAPI } from './datasources/cats'
-// const { verifyToken } = require('./utils/jwt');
 
 import typeDefs from './schema'
 import { resolvers } from './resolvers'
 
-// require("./datasources/dynamodb");
+import { UserExt } from './types';
 
-// let containers = {};
+// require("./datasources/dynamodb");
 
 console.log(`Starting up`);
 
-function getUserFromToken(req: any) {
-    const Authorization = req.headers.Authorization;
-    if (Authorization) {
-        // const token = Authorization.replace('Bearer ', '');
-        // const user = verifyToken(token);
-        return { id: "kalle", email: "olle" };
-    }
-    return null;
+function getFakeUser(req: any) : UserExt {
+    return { 
+        groups: ["Admin"],
+        id: "kalle", 
+        email: "olle"
+    };
 }
 
-function getUserFromClaims(claims: Record<string, string>) {
+function getUserFromClaims(claims: Record<string, string>) : UserExt {
     const groups = claims['cognito:groups'].split(',');
     return {
         groups,
@@ -59,20 +54,15 @@ const server = new ApolloServer({
         }
     },
     context: (ctx : ApolloContext) => {
-        const { context, event} = ctx;
-        // console.log(`Context: ${ctx}`);
-        console.log(ctx);
-        // console.log(event.requestContext?.authorizer?.claims);
+        const { event} = ctx;
+        // console.log(ctx);
         const claims = event.requestContext?.authorizer?.claims;
-        if (claims !== null && claims !== undefined) {
-            const user = getUserFromClaims(claims)
-            console.log(user);
-            return {
-                user
-            }
-        }
+        const user = claims !== null && claims !== undefined 
+            ? getUserFromClaims(claims)
+            : getFakeUser(event);
+
         return {
-            user: getUserFromToken(event)
+            user
         };
     },
     plugins: [

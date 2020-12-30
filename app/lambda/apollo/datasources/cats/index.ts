@@ -1,7 +1,8 @@
 
 import { RESTDataSource } from 'apollo-datasource-rest';
+import { ICatsAPI } from '../../types';
 
-export class CatsAPI extends RESTDataSource {
+export class CatsAPI extends RESTDataSource implements ICatsAPI  {
     constructor() {
         super();
         this.baseURL = "https://api.thecatapi.com/v1/"

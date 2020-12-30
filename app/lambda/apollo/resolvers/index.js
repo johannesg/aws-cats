@@ -9,8 +9,4 @@ exports.resolvers = {
         cats: () => ({})
     },
     Cats: cats_1.Cats,
-    // UserOps,
-    Mutation: {
-        user: () => ({})
-    }
 };
