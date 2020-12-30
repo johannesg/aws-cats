@@ -1,8 +1,18 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
+import { App } from '@aws-cdk/core';
 import { CatsStack } from '../lib/cats-stack';
-// const { CatsStack }  = require('../lib/cats-stack.js');
+import { CertStack } from '../lib/cert-stack';
 
-const app = new cdk.App();
-new CatsStack(app, 'CatsStack', undefined);
+const app = new App();
+const certStack = new CertStack(app, 'CertStack', {
+    env: { 
+      account: process.env.CDK_DEFAULT_ACCOUNT, 
+      region: process.env.CDK_DEFAULT_REGION 
+  }});
+new CatsStack(app, 'CatsStack', {
+    certificate: certStack.certificate,
+    env: { 
+      account: process.env.CDK_DEFAULT_ACCOUNT, 
+      region: process.env.CDK_DEFAULT_REGION 
+  }});
