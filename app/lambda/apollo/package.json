@@ -8,7 +8,8 @@
     "watch": "concurrently \"npm:watch-*\" --raw",
     "watch-ts": "tsc -w",
     "watch-ql": "graphql-codegen -w",
-    "generate": "graphql-codegen"
+    "generate": "graphql-codegen",
+    "build": "graphql-codegen && tsc"
   },
   "keywords": [],
   "author": "",
