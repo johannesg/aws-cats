@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { RestApi, LambdaIntegration, CfnAuthorizer, AuthorizationType, DomainName, SecurityPolicy, EndpointType } from '@aws-cdk/aws-apigateway';
+import { RestApi, LambdaIntegration, CfnAuthorizer, AuthorizationType, DomainName, SecurityPolicy, EndpointType, Cors } from '@aws-cdk/aws-apigateway';
 import { CatsAuthentication } from './cats-auth';
 import { Function, Runtime, Code } from '@aws-cdk/aws-lambda';
 import { IHostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
@@ -17,8 +17,14 @@ export class CatsApiApollo extends cdk.Construct {
     constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate }: CatsApi2Props) {
         super(scope, id);
 
+        new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
+
         const api = new RestApi(this, "CatsApiGraphQL", {
-            restApiName: "cats-api-graphql"
+            restApiName: "cats-api-graphql",
+            defaultCorsPreflightOptions: {
+                allowOrigins: Cors.ALL_ORIGINS,
+                allowMethods: Cors.ALL_METHODS // this is also the default
+              }
         })
 
         const authorizerId = new CfnAuthorizer(this, "APIGatewayAuthorizer", {
