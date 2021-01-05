@@ -9,6 +9,8 @@ import Link from '../components/Link'
 
 import { AmplifyAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import { AuthState, onAuthUIStateChange } from '@aws-amplify/ui-components';
+import { ApolloProvider } from "@apollo/client"
+import { createApolloClient } from '../apollo';
 
 function AuthContainer() {
   const [authState, setAuthState] = useState<AuthState>();
@@ -18,15 +20,31 @@ function AuthContainer() {
     onAuthUIStateChange((nextAuthState, authData) => {
       setAuthState(nextAuthState);
       setUser(authData);
+      if (nextAuthState === AuthState.SignedIn) {
+        console.log("user successfully signed in!");
+        console.log("user data: ", authData);
+      }
+      if (!authData) {
+        console.log("user is not signed in...");
+      }
     })
   });
 
-  return authState === AuthState.SignedIn && user ? (
-    <div>
-      <div>Hello, {user.username}</div>
-      <AmplifySignOut />
-    </div>)
-    : (<AmplifyAuthenticator />)
+  if (!(authState === AuthState.SignedIn && user))
+    return <AmplifyAuthenticator />;
+
+  const token = user.getSignInUserSession()?.getIdToken()?.getJwtToken();
+  console.log(`Token: ${token}`);
+
+  const apolloClient = createApolloClient(token);
+
+  return <div>
+    <div>Hello, {user.username}</div>
+    <AmplifySignOut />
+    <ApolloProvider client={apolloClient}>
+
+    </ApolloProvider>
+  </div>;
 }
 
 export default function Index() {

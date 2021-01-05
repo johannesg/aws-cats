@@ -1,0 +1,19 @@
+schema: ../lambda/apollo/schema.ts
+documents:
+  - ./src/apollo/queries.ts
+overwrite: true
+generates:
+  ./src/apollo/types.ts:
+    # schema: client-schema.graphql
+    plugins:
+      - add:
+          content: '/* eslint-disable */'
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+      # - typescript-resolvers
+    config:
+      withHOC: false
+      withHooks: true
+      withComponent: false
+      useIndexSignature: true

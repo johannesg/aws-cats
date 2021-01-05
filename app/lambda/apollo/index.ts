@@ -77,4 +77,9 @@ const server = new ApolloServer({
 
 console.log(`Init complete. Node version: ${process.version}`);
 
-export const handler = server.createHandler();
+export const handler = server.createHandler({
+    cors: {
+        origin: '*',
+        credentials: true
+    }
+});

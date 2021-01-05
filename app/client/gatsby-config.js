@@ -3,7 +3,7 @@ module.exports = {
     title: "My favourite Cats",
   },
   plugins: [
-    'gatsby-plugin-top-layout',
+    'top-layout',
     {
       resolve: 'gatsby-plugin-material-ui',
       // If you want to use styled components you should change the injection order.
