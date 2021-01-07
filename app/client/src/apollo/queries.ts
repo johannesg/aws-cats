@@ -10,7 +10,8 @@ const QUERIES = gql`
     query getRandomCats($pageSize: Int) {
         cats {
             random(pageSize: $pageSize) {
-            url
+                id
+                url
             }
         }
     }

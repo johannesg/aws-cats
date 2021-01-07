@@ -1,20 +1,25 @@
-import * as React from "react"
-import { useState, useEffect } from "react"
+import * as React from 'react'
+import { useState, useEffect, PropsWithChildren } from "react"
 import { PageProps } from "gatsby"
 
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
+import Paper from '@material-ui/core/Paper'
 import Box from '@material-ui/core/Box'
 import Link from '../components/Link'
 
 import { AmplifyAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import { AuthState, onAuthUIStateChange } from '@aws-amplify/ui-components';
 import { ApolloProvider } from "@apollo/client"
-import { createApolloClient } from '../apollo';
+import { createApolloClient } from '../apollo/client';
 
-function AuthContainer() {
+import App from '../components/app';
+
+type ContainerProps = PropsWithChildren<{}>
+
+function LoggedInContainer({ children } : ContainerProps) {
   const [authState, setAuthState] = useState<AuthState>();
-  const [user, setUser] = useState<object | undefined>();
+  const [user, setUser] = useState<any | undefined>();
 
   useEffect(() => {
     onAuthUIStateChange((nextAuthState, authData) => {
@@ -34,30 +39,30 @@ function AuthContainer() {
     return <AmplifyAuthenticator />;
 
   const token = user.getSignInUserSession()?.getIdToken()?.getJwtToken();
-  console.log(`Token: ${token}`);
 
   const apolloClient = createApolloClient(token);
 
   return <div>
-    <div>Hello, {user.username}</div>
+    <Typography variant="h5" component="h1" gutterBottom>
+      Hello {user.username}
+    </Typography>
     <AmplifySignOut />
     <ApolloProvider client={apolloClient}>
-
+      {children}
     </ApolloProvider>
   </div>;
 }
 
 export default function Index() {
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm"> 
       <Box my={4}>
         <Typography variant="h4" component="h1" gutterBottom>
           Gatsby v4-beta example
         </Typography>
-        <Link to="/signin" color="secondary">
-          Login
-        </Link>
-        <AuthContainer />
+        <LoggedInContainer>
+          <App/>
+        </LoggedInContainer>
       </Box>
     </Container>
   );

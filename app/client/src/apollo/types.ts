@@ -66,7 +66,7 @@ export type GetRandomCatsQuery = (
     { __typename?: 'Cats' }
     & { random?: Maybe<Array<Maybe<(
       { __typename?: 'Cat' }
-      & Pick<Cat, 'url'>
+      & Pick<Cat, 'id' | 'url'>
     )>>> }
   )> }
 );
@@ -109,6 +109,7 @@ export const GetRandomCatsDocument = gql`
     query getRandomCats($pageSize: Int) {
   cats {
     random(pageSize: $pageSize) {
+      id
       url
     }
   }
