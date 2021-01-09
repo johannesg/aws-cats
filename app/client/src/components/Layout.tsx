@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import { Button, Grid, IconButton, makeStyles, Toolbar, Typography } from '@material-ui/core'
 import { AppBar } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
-import { Auth, CognitoUser } from '@aws-amplify/auth'
+import { CognitoUser } from '@aws-amplify/auth'
+import { getUser, login, logout, subscribeToUserStateChanged } from '../auth';
+import NotLoggedIn from '../components/Layout/NotLoggedIn';
 
 type LayoutProps = {
     title: string
@@ -22,11 +24,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+
 function Profile({ user }: { user?: CognitoUser }) {
     if (!user)
-        return <Button color="inherit">Login</Button>
+        return <NotLoggedIn/>
     else
-        return <Button color="inherit" onClick={() => Auth.signOut()}>Logout</Button>
+        return <Button color="inherit" onClick={() => logout()}>Logout</Button>
 }
 
 export default ({ title, children }: LayoutProps) => {
@@ -34,14 +37,10 @@ export default ({ title, children }: LayoutProps) => {
     const [user, setUser] = useState<CognitoUser>();
 
     useEffect(() => {
-        Auth.currentAuthenticatedUser()
-            .then((user: CognitoUser) => {
-                console.log(`Logged in as ${user.getUsername()}`);
+        getUser().then(user => setUser(user));
+        return subscribeToUserStateChanged(user =>  {
                 setUser(user);
-            })
-            .catch(err => {
-                console.log("Not logged in");
-            })
+        });
     }, []);
 
     return <Grid container>

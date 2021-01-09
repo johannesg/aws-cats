@@ -1,47 +1,37 @@
 
-import { Auth } from '@aws-amplify/auth'
-
-const credentials = Auth.Credentials;
-
-const session = Auth.currentAuthenticatedUser();
+import { Auth, CognitoUser } from '@aws-amplify/auth'
+import { publish, PubSubCallback, PubSubUnsubscriber, subscribe } from './pubsub';
 
 export async function getUser() {
-    const user = await Auth.currentAuthenticatedUser();
-
-    return user;
+    try {
+        const user = await Auth.currentAuthenticatedUser();
+        return user;
+    } catch (_) {
+        return undefined;
+    }
 }
 
-type Unsubscriber = () => void
-
-type Callback = (event: any) => Unsubscriber
-
-type Subscribers = {
-    [key: string]: Callback[]
-}
-const subscribers: Subscribers = {}
-
-function publish(eventName: string, event: any) {
-    if (!Array.isArray(subscribers[eventName]))
-        return;
-
-    subscribers[eventName].forEach(cl => cl(event));
+export async function login(username: string, password: string) {
+    try {
+        const user = await Auth.signIn(username, password);
+        publish("auth", user);
+        console.log("User logged in", user);
+    } catch (err) {
+        console.log("Failed to login", err);
+    }
 }
 
-function subscribe(eventName: string, callback: Callback) {
-    if (!Array.isArray(subscribers[eventName]))
-        subscribers[eventName] = [];
-
-    //on subscribe we will we will push callback to subscribers[eventName] array
-    subscribers[eventName].push(callback);
-    const index = subscribers[eventName].length - 1
-
-    // subscribed callbacks to be removed when they are no longer necessary.
-    return () => {
-        subscribers[eventName].splice(index, 1);
-    };
+export async function logout() {
+    try {
+        await Auth.signOut();
+        publish("auth", null);
+    } catch (err) {
+        console.log("Failed to logout", err);
+    }
 }
 
-export function subscribeToUserStateChanged(callback: Callback) {
+export type AuthCallback = (event: CognitoUser) => void
 
-
+export function subscribeToUserStateChanged(callback: AuthCallback) {
+    return subscribe("auth", callback);
 }
