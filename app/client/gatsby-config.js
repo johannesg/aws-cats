@@ -2,6 +2,7 @@ module.exports = {
   siteMetadata: {
     title: "My favourite Cats",
   },
+  flags: { PRESERVE_WEBPACK_CACHE: true },
   plugins: [
     'top-layout',
     {
