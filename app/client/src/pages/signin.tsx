@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
-import { Auth } from 'aws-amplify'
+import { Auth } from '@aws-amplify/auth'
 import { navigate } from "gatsby"
 
 function Copyright() {
