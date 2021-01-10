@@ -10,16 +10,23 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { login } from '../../auth';
 import { makeStyles } from '@material-ui/styles';
 import { Checkbox, FormControlLabel, Grid, Link, Theme, Typography } from '@material-ui/core';
+import { useForm } from "react-hook-form";
+
 
 const useStyles = makeStyles<Theme>((theme) => ({
     form: {
-        width: '100%', // Fix IE 11 issue.
-        marginTop: theme.spacing(1),
+        // marginTop: theme.spacing(0),
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
 }));
+
+type InputCredentials = {
+    username: string
+    password: string
+    remember: boolean
+};
 
 export default function NotLoggedIn() {
     const [open, setOpen] = useState(false);
@@ -33,41 +40,44 @@ export default function NotLoggedIn() {
         setOpen(false);
     };
 
-    const handleLogin = (event: any) => {
-        event.preventDefault();
+    const handleLogin = ({ username, password, remember }: InputCredentials) => {
         setOpen(false);
+        login(username, password);
     }
+
+    const { register, handleSubmit, watch, errors } = useForm<InputCredentials>();
 
     return (
         <div>
             <Button color="inherit" onClick={handleClickOpen}>Login</Button>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title"><Typography component="h1" variant="h5">
+                <DialogTitle id="form-dialog-title">
                     Sign in
-        </Typography></DialogTitle>
+        </DialogTitle>
                 <DialogContent>
-                    <form className={classes.form} onSubmit={handleLogin} >
+                    <form className={classes.form} onSubmit={handleSubmit(handleLogin)} >
                         <TextField
                             autoFocus
                             variant="outlined"
                             required
                             margin="normal"
-                            id="username"
+                            name="username"
                             label="Username"
                             fullWidth
+                            inputRef={register}
                         />
                         <TextField
-                            autoFocus
                             variant="outlined"
                             required
                             margin="normal"
-                            id="password"
+                            name="password"
                             label="Password"
                             type="password"
                             fullWidth
+                            inputRef={register}
                         />
                         <FormControlLabel
-                            control={<Checkbox value="remember" color="primary" />}
+                            control={<Checkbox name="remember" color="primary" inputRef={register} />}
                             label="Remember me"
                         />
                         <Button

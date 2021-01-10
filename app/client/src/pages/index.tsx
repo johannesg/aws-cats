@@ -1,52 +1,44 @@
 import * as React from 'react'
 import { useState, useEffect, PropsWithChildren } from "react"
-import { PageProps } from "gatsby"
 
-import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
-import Box from '@material-ui/core/Box'
 import Link from '../components/Link'
 
-import { AmplifyAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
-import { AuthState, onAuthUIStateChange } from '@aws-amplify/ui-components';
 import { ApolloProvider } from "@apollo/client"
 import { createApolloClient } from '../apollo/client';
+import { AuthEvent, subscribeToUser, UserInfo } from '../auth';
 
 import App from '../components/app';
+import { CognitoUser } from '@aws-amplify/auth'
+import Layout from '../components/Layout'
 
 type ContainerProps = PropsWithChildren<{}>
 
-function LoggedInContainer({ children } : ContainerProps) {
-  const [authState, setAuthState] = useState<AuthState>();
-  const [user, setUser] = useState<any | undefined>();
+function LoggedInContainer({ children }: ContainerProps) {
+  const [user, setUser] = useState<UserInfo | undefined>();
 
   useEffect(() => {
-    onAuthUIStateChange((nextAuthState, authData) => {
-      setAuthState(nextAuthState);
-      setUser(authData);
-      if (nextAuthState === AuthState.SignedIn) {
+    subscribeToUser(({ user }: AuthEvent) => {
+      setUser(user);
+      if (user)
         console.log("user successfully signed in!");
-        console.log("user data: ", authData);
-      }
-      if (!authData) {
+      else {
         console.log("user is not signed in...");
       }
     })
-  });
+  }, []);
 
-  if (!(authState === AuthState.SignedIn && user))
-    return <AmplifyAuthenticator />;
+  const token = user?.token;
 
-  const token = user.getSignInUserSession()?.getIdToken()?.getJwtToken();
+  if (!user || !token)
+    return <Typography variant="h3" align="center">You need to login first</Typography>
 
   const apolloClient = createApolloClient(token);
 
   return <div>
-    <Typography variant="h5" component="h1" gutterBottom>
+    <Typography variant="h5" align="center" component="h1" gutterBottom>
       Hello {user.username}
     </Typography>
-    <AmplifySignOut />
     <ApolloProvider client={apolloClient}>
       {children}
     </ApolloProvider>
@@ -55,15 +47,10 @@ function LoggedInContainer({ children } : ContainerProps) {
 
 export default function Index() {
   return (
-    <Container maxWidth="sm"> 
-      <Box my={4}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Gatsby v4-beta example
-        </Typography>
-        <LoggedInContainer>
-          <App/>
-        </LoggedInContainer>
-      </Box>
-    </Container>
+    <Layout title="Cats">
+      <LoggedInContainer>
+        <App />
+      </LoggedInContainer>
+    </Layout>
   );
 }

@@ -11,7 +11,7 @@ export function publish(eventName: string, event: any) {
     if (!Array.isArray(subscribers[eventName]))
         return;
 
-    console.log(`Publishing ${eventName} to ${subscribers[eventName].length}`)
+    console.log(`Publishing ${eventName} to ${subscribers[eventName].length} subscribers`)
     subscribers[eventName].forEach(cl => cl(event));
 }
 

@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button, Grid, IconButton, makeStyles, Toolbar, Typography } from '@material-ui/core'
 import { AppBar } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
-import { CognitoUser } from '@aws-amplify/auth'
-import { getUser, login, logout, subscribeToUserStateChanged } from '../auth';
+import { logout, subscribeToUser, UserInfo } from '../auth';
 import NotLoggedIn from '../components/Layout/NotLoggedIn';
 
 type LayoutProps = {
@@ -25,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function Profile({ user }: { user?: CognitoUser }) {
+function Profile({ user }: { user?: UserInfo }) {
     if (!user)
         return <NotLoggedIn/>
     else
@@ -34,11 +33,10 @@ function Profile({ user }: { user?: CognitoUser }) {
 
 export default ({ title, children }: LayoutProps) => {
     const classes = useStyles();
-    const [user, setUser] = useState<CognitoUser>();
+    const [user, setUser] = useState<UserInfo | undefined>();
 
     useEffect(() => {
-        getUser().then(user => setUser(user));
-        return subscribeToUserStateChanged(user =>  {
+        return subscribeToUser(({ user }) =>  {
                 setUser(user);
         });
     }, []);

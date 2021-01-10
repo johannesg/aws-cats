@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { useMeQuery, useGetRandomCatsQuery, GetRandomCatsQuery } from '../apollo/types'
+import { useMeQuery, useGetRandomCatsQuery } from '../apollo/types'
 
 import { GridList, GridListTile, ListSubheader, Button, Typography } from '@material-ui/core'
 
@@ -14,8 +14,6 @@ function Me() {
         <div>Hello {data?.me?.id}</div>
     </div>
 }
-
-
 
 
 function RandomCat() {
