@@ -3,6 +3,8 @@ import * as React from 'react'
 import { useMeQuery, useGetRandomCatsQuery } from '../apollo/types'
 
 import { GridList, GridListTile, ListSubheader, Button, Typography } from '@material-ui/core'
+import { AuthContext } from '../components/AuthProvider';
+import { useContext } from 'react';
 
 function Me() {
     const { loading, error, data } = useMeQuery();
@@ -14,7 +16,6 @@ function Me() {
         <div>Hello {data?.me?.id}</div>
     </div>
 }
-
 
 function RandomCat() {
     const { loading, error, data, refetch } = useGetRandomCatsQuery({ variables: { pageSize: 9 } });
@@ -37,8 +38,12 @@ function RandomCat() {
 }
 
 export default function App() {
+    const authInfo = useContext(AuthContext);
     return <div>
         {/* <Me /> */}
+        <Typography variant="h5" align="center" component="h1" gutterBottom>
+          Hello {authInfo.user.username}
+        </Typography>
         <RandomCat />
     </div>;
 }
