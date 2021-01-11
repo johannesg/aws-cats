@@ -17,3 +17,4 @@ generates:
       withHooks: true
       withComponent: false
       useIndexSignature: true
+      avoidOptionals: true

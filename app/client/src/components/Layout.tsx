@@ -55,8 +55,10 @@ export default ({ title, children }: LayoutProps) => {
                 </Toolbar>
             </AppBar>
         </Grid>
-        <Grid item container xs={12}>
+        <Grid xs={false} sm={2} />
+        <Grid item container xs={12} sm={8}>
             {children}
         </Grid>
+        <Grid xs={false} sm={2} />
     </Grid>
 }

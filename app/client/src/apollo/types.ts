@@ -18,13 +18,13 @@ export type Cat = {
   __typename?: 'Cat';
   id: Scalars['ID'];
   url: Scalars['String'];
-  height?: Maybe<Scalars['Int']>;
-  width?: Maybe<Scalars['Int']>;
+  height: Maybe<Scalars['Int']>;
+  width: Maybe<Scalars['Int']>;
 };
 
 export type Cats = {
   __typename?: 'Cats';
-  random?: Maybe<Array<Maybe<Cat>>>;
+  random: Maybe<Array<Maybe<Cat>>>;
 };
 
 
@@ -34,8 +34,8 @@ export type CatsRandomArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  cats?: Maybe<Cats>;
-  me?: Maybe<User>;
+  cats: Maybe<Cats>;
+  me: Maybe<User>;
 };
 
 export type User = {
@@ -49,22 +49,22 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = (
   { __typename?: 'Query' }
-  & { me?: Maybe<(
+  & { me: Maybe<(
     { __typename?: 'User' }
     & Pick<User, 'id' | 'email'>
   )> }
 );
 
 export type GetRandomCatsQueryVariables = Exact<{
-  pageSize?: Maybe<Scalars['Int']>;
+  pageSize: Maybe<Scalars['Int']>;
 }>;
 
 
 export type GetRandomCatsQuery = (
   { __typename?: 'Query' }
-  & { cats?: Maybe<(
+  & { cats: Maybe<(
     { __typename?: 'Cats' }
-    & { random?: Maybe<Array<Maybe<(
+    & { random: Maybe<Array<Maybe<(
       { __typename?: 'Cat' }
       & Pick<Cat, 'id' | 'url'>
     )>>> }
