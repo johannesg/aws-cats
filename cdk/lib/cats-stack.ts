@@ -4,10 +4,10 @@ import { CatsAuthentication } from './cats-auth';
 import { CatsApi } from './cats-api';
 import { CatsApiApollo } from './cats-api-apollo';
 import { StaticSite } from './static-site';
-import { ICertificate } from '@aws-cdk/aws-certificatemanager';
+import { ICertificate, Certificate } from '@aws-cdk/aws-certificatemanager';
 
 export interface CatsStackProps extends cdk.StackProps {
-  certificate: ICertificate
+  // certificate: ICertificate
 }
 
 
@@ -15,7 +15,7 @@ export class CatsStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: CatsStackProps) {
     super(scope, id, props);
 
-    const { certificate } = props;
+    const certificate = Certificate.fromCertificateArn(this, "CatsCert", "arn:aws:acm:us-east-1:700595718361:certificate/37ff910c-28e1-4e64-b77f-806eef9d1ff0");
 
     // The code that defines your stack goes here
     // new s3.Bucket(this, 'cats', {
