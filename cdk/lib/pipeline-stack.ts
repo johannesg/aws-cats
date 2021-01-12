@@ -1,7 +1,7 @@
 import { Stack, Construct, StackProps } from '@aws-cdk/core';
 import { Repository } from '@aws-cdk/aws-codecommit';
-import codepipeline from '@aws-cdk/aws-codepipeline';
-import codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
+import * as codepipeline from '@aws-cdk/aws-codepipeline';
+import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
 import { CdkPipeline, SimpleSynthAction } from '@aws-cdk/pipelines';
 
 export class CatsPipelineStack extends Stack {
@@ -14,10 +14,10 @@ export class CatsPipelineStack extends Stack {
         });
 
         // Defines the artifact representing the sourcecode
-        const sourceArtifact = new codepipeline.Artifact();
+        const sourceArtifact = new codepipeline.Artifact("CdkSource");
         // Defines the artifact representing the cloud assembly 
         // (cloudformation template + all other assets)
-        const cloudAssemblyArtifact = new codepipeline.Artifact();
+        const cloudAssemblyArtifact = new codepipeline.Artifact("CdkAssembly");
 
         // The basic pipeline declaration. This sets the initial structure
         // of our pipeline
