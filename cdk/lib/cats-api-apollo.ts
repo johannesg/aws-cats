@@ -5,6 +5,7 @@ import { Function, Runtime, Code } from '@aws-cdk/aws-lambda';
 import { IHostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
 import { ICertificate } from '@aws-cdk/aws-certificatemanager';
 import * as targets from '@aws-cdk/aws-route53-targets';
+import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 
 export interface CatsApi2Props {
     domainName: string
@@ -24,7 +25,7 @@ export class CatsApiApollo extends cdk.Construct {
             defaultCorsPreflightOptions: {
                 allowOrigins: Cors.ALL_ORIGINS,
                 allowMethods: Cors.ALL_METHODS // this is also the default
-              }
+            }
         })
 
         const authorizerId = new CfnAuthorizer(this, "APIGatewayAuthorizer", {
@@ -35,10 +36,19 @@ export class CatsApiApollo extends cdk.Construct {
             type: AuthorizationType.COGNITO
         }).ref;
 
-        const handler = new Function(this, 'ApolloHandler', {
+        const handler = new NodejsFunction(this, 'ApolloHandler', {
             runtime: Runtime.NODEJS_12_X,
-            code: Code.fromAsset('../app/lambda/apollo'),
-            handler: 'index.handler'
+            entry: '../app/lambda/apollo/index.ts',
+            // code: Code.fromAsset('../app/lambda/apollo'),
+            handler: 'handler',
+            // bundling: {
+                // commandHooks: {
+                //     afterBundling: () => ([]),
+                //     beforeBundling: () => ["npm run generate --prefix "],
+                //     beforeInstall: () => []
+                // }
+
+            // }
         });
 
         const integration = new LambdaIntegration(handler, {});
