@@ -74,11 +74,11 @@ export class StaticSite extends Construct {
         new cdk.CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
 
         // Route53 alias record for the CloudFront distribution
-        // new route53.ARecord(this, 'SiteAliasRecord', {
-        //     recordName: domainName,
-        //     target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
-        //     zone
-        // });
+        new route53.ARecord(this, 'SiteAliasRecord', {
+            recordName: domainName,
+            target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
+            zone
+        });
 
         new cdk.CfnOutput(this, 'AppCodeBucketName', { value: source.bucketName });
         new cdk.CfnOutput(this, 'AppCodeObjectKey', { value: source.objectKey });
