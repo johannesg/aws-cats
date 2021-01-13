@@ -50,7 +50,8 @@ export class CatsPipelineStack extends Stack {
         const deploy = new CatsPipelineDeployStage(this, 'Deploy');
         const deployStage = pipeline.addApplicationStage(deploy);
         deployStage.addActions(
-            this.createLambdaBuildAction(sourceArtifact)
+            this.createLambdaBuildAction(sourceArtifact),
+            this.createAppBuildAction(sourceArtifact)
         );
     }
 
@@ -62,18 +63,17 @@ export class CatsPipelineStack extends Stack {
                     install: {
                         commands: [
                             'cd app/lambda/apollo',
-                            'npm install',
+                            'npm ci',
                         ],
                     },
                     build: {
-                        commands: 'npm run build',
+                        commands: 'npm run esbuild',
                     },
                 },
                 artifacts: {
                     'base-directory': 'app/lambda/apollo',
                     files: [
-                        'index.js',
-                        'node_modules/**/*',
+                        'index.js'
                     ],
                 },
             }),
@@ -89,6 +89,43 @@ export class CatsPipelineStack extends Stack {
             project: lambdaBuild,
             input: source,
             outputs: [lambdaBuildOutput],
+        });
+    }
+
+    createAppBuildAction(source: codepipeline.Artifact): codepipeline.IAction {
+        const appBuild = new codebuild.PipelineProject(this, 'AppBuild', {
+            buildSpec: codebuild.BuildSpec.fromObject({
+                version: '0.2',
+                phases: {
+                    install: {
+                        commands: [
+                            'cd app/client',
+                            'npm ci',
+                        ],
+                    },
+                    build: {
+                        commands: 'npm run build',
+                    },
+                },
+                artifacts: {
+                    'base-directory': 'app/client/public',
+                    files: [
+                        '**/*'
+                    ],
+                },
+            }),
+            environment: {
+                buildImage: codebuild.LinuxBuildImage.STANDARD_2_0,
+            },
+        });
+
+        const appBuildOutput = new codepipeline.Artifact('AppBuildOutput');
+
+        return new codepipeline_actions.CodeBuildAction({
+            actionName: 'App_Build',
+            project: appBuild,
+            input: source,
+            outputs: [appBuildOutput],
         });
     }
 }
