@@ -51,27 +51,27 @@ export class StaticSite extends Construct {
         new cdk.CfnOutput(this, 'Bucket', { value: siteBucket.bucketName });
 
         // CloudFront distribution that provides HTTPS
-        // const distribution = new cloudfront.CloudFrontWebDistribution(this, 'SiteDistribution', {
-        //     aliasConfiguration: {
-        //         acmCertRef: certificateArn,
-        //         names: [domainName],
-        //         sslMethod: cloudfront.SSLMethod.SNI,
-        //         securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
-        //     },
-        //     originConfigs: [
-        //         {
-        //             customOriginSource: {
-        //                 domainName: siteBucket.bucketWebsiteDomainName,
-        //                 originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
-        //             },
-        //             behaviors: [{
-        //                 isDefaultBehavior: true,
-        //                 allowedMethods: cloudfront.CloudFrontAllowedMethods.GET_HEAD
-        //             }],
-        //         }
-        //     ]
-        // });
-        // new cdk.CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
+        const distribution = new cloudfront.CloudFrontWebDistribution(this, 'SiteDistribution', {
+            aliasConfiguration: {
+                acmCertRef: certificateArn,
+                names: [domainName],
+                sslMethod: cloudfront.SSLMethod.SNI,
+                securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
+            },
+            originConfigs: [
+                {
+                    customOriginSource: {
+                        domainName: siteBucket.bucketWebsiteDomainName,
+                        originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+                    },
+                    behaviors: [{
+                        isDefaultBehavior: true,
+                        allowedMethods: cloudfront.CloudFrontAllowedMethods.GET_HEAD
+                    }],
+                }
+            ]
+        });
+        new cdk.CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
 
         // Route53 alias record for the CloudFront distribution
         // new route53.ARecord(this, 'SiteAliasRecord', {
