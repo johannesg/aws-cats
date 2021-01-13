@@ -40,6 +40,9 @@ export class CatsApiApollo extends cdk.Construct {
             type: AuthorizationType.COGNITO
         }).ref;
 
+        new cdk.CfnOutput(this, 'LambdaCodeBucketName', { value: source.bucketName });
+        new cdk.CfnOutput(this, 'LambdaCodeObjectKey', { value: source.objectKey });
+
         const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
 
         const handler = new Function(this, 'ApolloHandler', {

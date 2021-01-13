@@ -95,6 +95,9 @@ export class StaticSite extends Construct {
             zone
         });
 
+        new cdk.CfnOutput(this, 'AppCodeBucketName', { value: source.bucketName });
+        new cdk.CfnOutput(this, 'AppCodeObjectKey', { value: source.objectKey });
+
         const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
 
         // Deploy site contents to S3 bucket
