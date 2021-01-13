@@ -94,7 +94,7 @@ export class CatsPipelineStack extends Stack {
                         new codepipeline_actions.CloudFormationCreateUpdateStackAction({
                             actionName: 'Cats_CFN_Deploy',
                             templatePath: cdkBuildOutput.atPath('CatsStack.template.json'),
-                            stackName: 'CatsDeploymentStack',
+                            stackName: 'CatsStack',
                             adminPermissions: true,
                             parameterOverrides: {
                                 // ...props.lambdaCode.assign(lambdaBuildOutput.s3Location),
