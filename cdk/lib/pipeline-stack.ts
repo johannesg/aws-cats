@@ -3,7 +3,7 @@ import { Repository } from '@aws-cdk/aws-codecommit';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
 import { CdkPipeline, SimpleSynthAction } from '@aws-cdk/pipelines';
-import { CatsPipelineStage } from './pipeline-stage';
+import { CatsPipelineBuildStage, CatsPipelineDeployStage } from './pipeline-stage';
 
 export class CatsPipelineStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -43,7 +43,10 @@ export class CatsPipelineStack extends Stack {
             })
         });
 
-        const deploy = new CatsPipelineStage(this, 'Deploy');
-        pipeline.addApplicationStage(deploy);
+        const build = new CatsPipelineBuildStage(this, 'BuildAssets', { source: sourceArtifact });
+        pipeline.addApplicationStage(build);
+
+        // const deploy = new CatsPipelineDeployStage(this, 'Deploy');
+        // pipeline.addApplicationStage(deploy);
     }
 }

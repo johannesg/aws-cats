@@ -41,14 +41,13 @@ export class CatsApiApollo extends cdk.Construct {
             entry: '../app/lambda/apollo/index.ts',
             // code: Code.fromAsset('../app/lambda/apollo'),
             handler: 'handler',
-            // bundling: {
+            bundling: {
                 // commandHooks: {
                 //     afterBundling: () => ([]),
-                //     beforeBundling: () => ["npm run generate --prefix "],
-                //     beforeInstall: () => []
+                //     beforeBundling: (inputDir) => [`npm run generate --prefix ${inputDir}`],
+                //     beforeInstall: (inputDir) => [`npm --prefix ci`]
                 // }
-
-            // }
+            }
         });
 
         const integration = new LambdaIntegration(handler, {});
