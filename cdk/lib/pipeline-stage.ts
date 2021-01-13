@@ -22,16 +22,23 @@ import { Artifact } from '@aws-cdk/aws-codepipeline';
 //     }
 // }
 
+class EmptyStack extends Stack {
+  constructor(scope: Construct, id: string, props: StackProps) {
+    super(scope, id, props);
+  }
+}
+
 export class CatsPipelineDeployStage extends Stage {
     constructor(scope: Construct, id: string, props?: StageProps) {
         super(scope, id, props);
 
+        new EmptyStack(this, 'EmptyStack', {});
 
-        new CatsStack(this, 'CatsStack', {
-            env: {
-                account: process.env.CDK_DEFAULT_ACCOUNT,
-                region: process.env.CDK_DEFAULT_REGION
-            }
-        });
+        // new CatsStack(this, 'CatsStack', {
+        //     env: {
+        //         account: process.env.CDK_DEFAULT_ACCOUNT,
+        //         region: process.env.CDK_DEFAULT_REGION
+        //     }
+        // });
     }
 }
