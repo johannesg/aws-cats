@@ -50,43 +50,28 @@ export class StaticSite extends Construct {
 
         new cdk.CfnOutput(this, 'Bucket', { value: siteBucket.bucketName });
 
-        // new codebuild.Project(this, 'AppBuild', {
-        //     buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-app.yml"),
-        //     source: codebuild.Source.codeCommit({ repository: repo }),
-        //     environment: {
-        //         buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
-        //     },
-        //     artifacts: codebuild.Artifacts.s3({
-        //         bucket: siteBucket,
-        //         packageZip: false,
-        //         encryption: false,
-        //         includeBuildId: false,
-        //         name: '.'
-        //     })
-        // });
-
         // CloudFront distribution that provides HTTPS
-        const distribution = new cloudfront.CloudFrontWebDistribution(this, 'SiteDistribution', {
-            aliasConfiguration: {
-                acmCertRef: certificateArn,
-                names: [domainName],
-                sslMethod: cloudfront.SSLMethod.SNI,
-                securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
-            },
-            originConfigs: [
-                {
-                    customOriginSource: {
-                        domainName: siteBucket.bucketWebsiteDomainName,
-                        originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
-                    },
-                    behaviors: [{
-                        isDefaultBehavior: true,
-                        allowedMethods: cloudfront.CloudFrontAllowedMethods.GET_HEAD
-                    }],
-                }
-            ]
-        });
-        new cdk.CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
+        // const distribution = new cloudfront.CloudFrontWebDistribution(this, 'SiteDistribution', {
+        //     aliasConfiguration: {
+        //         acmCertRef: certificateArn,
+        //         names: [domainName],
+        //         sslMethod: cloudfront.SSLMethod.SNI,
+        //         securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
+        //     },
+        //     originConfigs: [
+        //         {
+        //             customOriginSource: {
+        //                 domainName: siteBucket.bucketWebsiteDomainName,
+        //                 originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+        //             },
+        //             behaviors: [{
+        //                 isDefaultBehavior: true,
+        //                 allowedMethods: cloudfront.CloudFrontAllowedMethods.GET_HEAD
+        //             }],
+        //         }
+        //     ]
+        // });
+        // new cdk.CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
 
         // Route53 alias record for the CloudFront distribution
         // new route53.ARecord(this, 'SiteAliasRecord', {
@@ -98,14 +83,14 @@ export class StaticSite extends Construct {
         new cdk.CfnOutput(this, 'AppCodeBucketName', { value: source.bucketName });
         new cdk.CfnOutput(this, 'AppCodeObjectKey', { value: source.objectKey });
 
-        const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
+        // const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
 
-        // Deploy site contents to S3 bucket
-        new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
-            sources: [ s3deploy.Source.bucket(sourceBucket, source.objectKey) ],
-            destinationBucket: siteBucket,
-            distribution,
-            distributionPaths: ['/*'],
-          });
+        // // Deploy site contents to S3 bucket
+        // new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
+        //     sources: [ s3deploy.Source.bucket(sourceBucket, source.objectKey) ],
+        //     destinationBucket: siteBucket,
+        //     distribution,
+        //     distributionPaths: ['/*'],
+        //   });
     }
 }
