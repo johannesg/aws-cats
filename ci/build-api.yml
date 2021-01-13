@@ -1,0 +1,13 @@
+version: '0.2',
+phases:
+  install:
+    commands:
+      - cd app/lambda/apollo
+      - npm ci
+  build:
+    commands:
+      - npm run esbuild
+artifacts:
+  base-directory: app/lambda/apollo
+  files: 
+    - index.js

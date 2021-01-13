@@ -9,23 +9,25 @@ class EmptyStack extends Stack {
 }
 
 type CatsPipelineStageProps = StageProps & {
-    appArtifact: Artifact,
-    lambdaArtifact: Artifact
+    // appArtifact?: Artifact,
+    // lambdaArtifact: Artifact
 }
 
 export class CatsPipelineStage extends Stage {
     constructor(scope: Construct, id: string, props: CatsPipelineStageProps) {
         super(scope, id, props);
 
+        // new EmptyStack(this, 'EmptyStack', {});
+
         new CatsStack(this, 'CatsStack', {
             env: {
                 account: process.env.CDK_DEFAULT_ACCOUNT,
                 region: process.env.CDK_DEFAULT_REGION
-            },
-            sources: {
-                app: props.appArtifact.s3Location,
-                lambda: props.lambdaArtifact.s3Location
             }
+            // sources: {
+            //     app: props.appArtifact.s3Location,
+            //     lambda: props.lambdaArtifact.s3Location
+            // }
         });
     }
 }

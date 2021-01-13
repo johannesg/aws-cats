@@ -5,19 +5,33 @@ import { CatsApiApollo } from './cats-api-apollo';
 import { StaticSite } from './static-site';
 import { Certificate } from '@aws-cdk/aws-certificatemanager';
 import * as s3 from '@aws-cdk/aws-s3';
+import { Repository } from '@aws-cdk/aws-codecommit';
+import * as lambda from '@aws-cdk/aws-lambda';
+import { CfnParameter } from '@aws-cdk/core';
 
 export interface CatsStackProps extends cdk.StackProps {
   // certificate: ICertificate
-  sources: {
-    app: s3.Location,
-    lambda: s3.Location
-  }
+  // sources: {
+  //   app: s3.Location,
+  //   lambda: s3.Location
+  // }
 }
 
 
 export class CatsStack extends cdk.Stack {
+  // public readonly lambdaCode: lambda.CfnParametersCode;
+  public readonly lambdaCodeBucketName: CfnParameter;
+  public readonly lambdaCodeObjectKey: CfnParameter;
+  public readonly appCodeBucketName: CfnParameter;
+  public readonly appCodeObjectKey: CfnParameter;
+
   constructor(scope: cdk.Construct, id: string, props: CatsStackProps) {
     super(scope, id, props);
+
+    this.lambdaCodeBucketName = new CfnParameter(this, "lambdaCodeBucketName");
+    this.lambdaCodeObjectKey = new CfnParameter(this, "lambdaCodeObjectKey");
+    this.appCodeBucketName = new CfnParameter(this, "appCodeBucketName");
+    this.appCodeObjectKey = new CfnParameter(this, "appCodeObjectKey");
 
     const certificate = Certificate.fromCertificateArn(this, "CatsCert", "arn:aws:acm:us-east-1:700595718361:certificate/37ff910c-28e1-4e64-b77f-806eef9d1ff0");
 
@@ -42,6 +56,8 @@ export class CatsStack extends cdk.Stack {
 
     const auth = new CatsAuthentication(this, "Auth");
 
+    const repo = Repository.fromRepositoryName(this, "CatsRepo", "CatsRepo");
+
     // const appsync = new CatsApi(this, "Api", { auth });
 
     const api = new CatsApiApollo(this, "ApiApollo", {
@@ -49,14 +65,14 @@ export class CatsStack extends cdk.Stack {
       auth, 
       zone, 
       certificate,
-      source: props.sources.lambda
+      source: { bucketName: this.lambdaCodeBucketName.valueAsString, objectKey: this.lambdaCodeObjectKey.valueAsString }
     });
 
     const site = new StaticSite(this, "ClientSite", {
       domainName: "cats.aws.jogus.io",
-      source: props.sources.app,
       zone,
-      certificate
+      certificate,
+      source: { bucketName: this.appCodeBucketName.valueAsString, objectKey: this.appCodeObjectKey.valueAsString }
     });
 
     // const hitCounter = new HitCounter(this, 'CatsHitCounter', {

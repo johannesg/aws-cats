@@ -1,13 +1,22 @@
-import { Stack, Construct, StackProps } from '@aws-cdk/core';
+import { Stack, Construct, StackProps, CfnParameter } from '@aws-cdk/core';
 import { Repository } from '@aws-cdk/aws-codecommit';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
-import { CdkPipeline, SimpleSynthAction } from '@aws-cdk/pipelines';
-import { CatsPipelineStage } from './pipeline-stage';
+// import { CdkPipeline, SimpleSynthAction } from '@aws-cdk/pipelines';
+// import { CatsPipelineStage } from './pipeline-stage';
+import * as lambda from '@aws-cdk/aws-lambda';
+
+type CatsPipelineStackProps = StackProps & {
+    // lambdaCode: lambda.CfnParametersCode
+    // appCode: {
+    //     bucketName: CfnParameter
+    //     objectKey: CfnParameter
+    // }
+}
 
 export class CatsPipelineStack extends Stack {
-    constructor(scope: Construct, id: string, props?: StackProps) {
+    constructor(scope: Construct, id: string, props: CatsPipelineStackProps) {
         super(scope, id, props);
 
         // Creates a CodeCommit repository called 'WorkshopRepo'
@@ -15,116 +24,94 @@ export class CatsPipelineStack extends Stack {
             repositoryName: "CatsRepo"
         });
 
-        // Defines the artifact representing the sourcecode
-        const sourceArtifact = new codepipeline.Artifact("CdkSource");
-        // Defines the artifact representing the cloud assembly 
-        // (cloudformation template + all other assets)
-        const cloudAssemblyArtifact = new codepipeline.Artifact("CdkAssembly");
-
-        // The basic pipeline declaration. This sets the initial structure
-        // of our pipeline
-        const pipeline = new CdkPipeline(this, 'Pipeline', {
-            pipelineName: 'WorkshopPipeline',
-            cloudAssemblyArtifact,
-
-            // Generates the source artifact from the repo we created in the last step
-            sourceAction: new codepipeline_actions.CodeCommitSourceAction({
-                actionName: 'CodeCommit', // Any Git-based source control
-                output: sourceArtifact, // Indicates where the artifact is stored
-                repository: repo // Designates the repo to draw code from
-            }),
-
-            // Builds our source code outlined above into a could assembly artifact
-            synthAction: SimpleSynthAction.standardNpmSynth({
-                sourceArtifact, // Where to get source code to build
-                cloudAssemblyArtifact, // Where to place built source
-
-                buildCommand: 'npm run build', // Language-specific build cmd
-                subdirectory: 'cdk'
-            }),
+        const cdkBuild = new codebuild.PipelineProject(this, 'CdkBuild', {
+            buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-cdk.yml"),
+            environment: {
+                buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
+            }
         });
 
-        // const build = new CatsPipelineBuildStage(this, 'BuildAssets', { source: sourceArtifact });
-        // pipeline.addApplicationStage(build);
+        const lambdaBuild = new codebuild.PipelineProject(this, 'LambdaBuild', {
+            buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-api.yml"),
+            environment: {
+                buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
+            },
+        });
 
+        const appBuild = new codebuild.PipelineProject(this, 'AppBuild', {
+            buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-app.yml"),
+            environment: {
+                buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
+            },
+        });
+
+        // Create Artifacts
+        const sourceOutput = new codepipeline.Artifact("SrcOutput");
+        const cdkBuildOutput = new codepipeline.Artifact('CdkBuildOutput');
         const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
         const appBuildOutput = new codepipeline.Artifact('AppBuildOutput');
 
-        const deploy = new CatsPipelineStage(this, 'Deploy', { appArtifact: appBuildOutput, lambdaArtifact: lambdaBuildOutput });
-        const deployStage = pipeline.addApplicationStage(deploy);
-        deployStage.addActions(
-            this.createLambdaBuildAction(sourceArtifact, lambdaBuildOutput),
-            this.createAppBuildAction(sourceArtifact, appBuildOutput)
-        );
-    }
 
-    createLambdaBuildAction(source: codepipeline.Artifact, output: codepipeline.Artifact): codepipeline.IAction {
-        const lambdaBuild = new codebuild.PipelineProject(this, 'LambdaBuild', {
-            buildSpec: codebuild.BuildSpec.fromObject({
-                version: '0.2',
-                phases: {
-                    install: {
-                        commands: [
-                            'cd app/lambda/apollo',
-                            'npm ci',
-                        ],
-                    },
-                    build: {
-                        commands: 'npm run esbuild',
-                    },
+        // Complete Pipeline Project
+        new codepipeline.Pipeline(this, 'Pipeline', {
+            restartExecutionOnUpdate: true,
+            stages: [
+                {
+                    stageName: 'Source',
+                    actions: [
+                        new codepipeline_actions.CodeCommitSourceAction({
+                            actionName: 'CodeCommit', // Any Git-based source control
+                            output: sourceOutput, // Indicates where the artifact is stored
+                            repository: repo // Designates the repo to draw code from
+                        })],
                 },
-                artifacts: {
-                    'base-directory': 'app/lambda/apollo',
-                    files: [
-                        'index.js'
+                {
+                    stageName: 'Build',
+                    actions: [
+                        new codepipeline_actions.CodeBuildAction({
+                            actionName: 'Lambda_Build',
+                            project: lambdaBuild,
+                            input: sourceOutput,
+                            outputs: [lambdaBuildOutput],
+                        }),
+                        new codepipeline_actions.CodeBuildAction({
+                            actionName: 'App_Build',
+                            project: appBuild,
+                            input: sourceOutput,
+                            outputs: [appBuildOutput],
+                        }),
+                        new codepipeline_actions.CodeBuildAction({
+                            actionName: 'CDK_Build',
+                            project: cdkBuild,
+                            input: sourceOutput,
+                            outputs: [cdkBuildOutput],
+                        }),
                     ],
                 },
-            }),
-            environment: {
-                buildImage: codebuild.LinuxBuildImage.STANDARD_2_0,
-            },
-        });
-
-        return new codepipeline_actions.CodeBuildAction({
-            actionName: 'Lambda_Build',
-            project: lambdaBuild,
-            input: source,
-            outputs: [output],
-        });
-    }
-
-    createAppBuildAction(source: codepipeline.Artifact, output: codepipeline.Artifact): codepipeline.IAction {
-        const appBuild = new codebuild.PipelineProject(this, 'AppBuild', {
-            buildSpec: codebuild.BuildSpec.fromObject({
-                version: '0.2',
-                phases: {
-                    install: {
-                        commands: [
-                            'cd app/client',
-                            'npm ci',
-                        ],
-                    },
-                    build: {
-                        commands: 'npm run build',
-                    },
-                },
-                artifacts: {
-                    'base-directory': 'app/client/public',
-                    files: [
-                        '**/*'
+                {
+                    stageName: 'Deploy',
+                    actions: [
+                        new codepipeline_actions.CloudFormationCreateUpdateStackAction({
+                            actionName: 'Cats_CFN_Deploy',
+                            templatePath: cdkBuildOutput.atPath('CatsStack.template.json'),
+                            stackName: 'CatsDeploymentStack',
+                            adminPermissions: true,
+                            parameterOverrides: {
+                                // ...props.lambdaCode.assign(lambdaBuildOutput.s3Location),
+                                ... {
+                                    lambdaCodeBucketName: lambdaBuildOutput.s3Location.bucketName,
+                                    lambdaCodeObjectKey: lambdaBuildOutput.s3Location.objectKey
+                                },
+                                ...{
+                                    appCodeBucketName: appBuildOutput.s3Location.bucketName,
+                                    appCodeObjectKey: appBuildOutput.s3Location.objectKey
+                                }
+                            },
+                            extraInputs: [lambdaBuildOutput, appBuildOutput],
+                        }),
                     ],
                 },
-            }),
-            environment: {
-                buildImage: codebuild.LinuxBuildImage.STANDARD_2_0,
-            },
-        });
-
-        return new codepipeline_actions.CodeBuildAction({
-            actionName: 'App_Build',
-            project: appBuild,
-            input: source,
-            outputs: [output],
+            ],
         });
     }
 }

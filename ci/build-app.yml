@@ -1,0 +1,13 @@
+version: 0.2
+phases: 
+  install: 
+    commands: 
+      - cd app/client
+      - npm ci
+  build:
+    commands:
+      - npm run build
+artifacts:
+  base-directory: app/client/public
+  files:
+    - '**/*'

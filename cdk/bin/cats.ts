@@ -11,8 +11,7 @@ const app = new App();
 //       account: process.env.CDK_DEFAULT_ACCOUNT, 
 //       region: process.env.CDK_DEFAULT_REGION 
 //   }});
-// new CatsStack(app, 'CatsStack', {
-//     certificate: certStack.certificate,
+// const catsStack = new CatsStack(app, 'CatsStack', {
 //     env: { 
 //       account: process.env.CDK_DEFAULT_ACCOUNT, 
 //       region: process.env.CDK_DEFAULT_REGION 

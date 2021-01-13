@@ -7,12 +7,18 @@ import { ICertificate } from '@aws-cdk/aws-certificatemanager';
 import cdk = require('@aws-cdk/core');
 import targets = require('@aws-cdk/aws-route53-targets/lib');
 import { Construct } from '@aws-cdk/core';
+import * as codebuild from '@aws-cdk/aws-codebuild';
+import { IRepository } from '@aws-cdk/aws-codecommit';
+import * as lambda from '@aws-cdk/aws-lambda';
 
 export interface StaticSiteProps {
     domainName: string
-    source: s3.Location,
     zone: route53.IHostedZone
     certificate: ICertificate
+    source: {
+        bucketName: string
+        objectKey: string
+    }
 }
 
 /**
@@ -41,15 +47,29 @@ export class StaticSite extends Construct {
             // DESTROY, cdk destroy will attempt to delete the bucket, but will error if the bucket is not empty.
             removalPolicy: cdk.RemovalPolicy.DESTROY, // NOT recommended for production code
         });
+
         new cdk.CfnOutput(this, 'Bucket', { value: siteBucket.bucketName });
 
-        // TLS certificate
+        // new codebuild.Project(this, 'AppBuild', {
+        //     buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-app.yml"),
+        //     source: codebuild.Source.codeCommit({ repository: repo }),
+        //     environment: {
+        //         buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
+        //     },
+        //     artifacts: codebuild.Artifacts.s3({
+        //         bucket: siteBucket,
+        //         packageZip: false,
+        //         encryption: false,
+        //         includeBuildId: false,
+        //         name: '.'
+        //     })
+        // });
 
         // CloudFront distribution that provides HTTPS
         const distribution = new cloudfront.CloudFrontWebDistribution(this, 'SiteDistribution', {
             aliasConfiguration: {
                 acmCertRef: certificateArn,
-                names: [ domainName ],
+                names: [domainName],
                 sslMethod: cloudfront.SSLMethod.SNI,
                 securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
             },
@@ -58,8 +78,11 @@ export class StaticSite extends Construct {
                     customOriginSource: {
                         domainName: siteBucket.bucketWebsiteDomainName,
                         originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
-                    },          
-                    behaviors : [ {isDefaultBehavior: true}],
+                    },
+                    behaviors: [{
+                        isDefaultBehavior: true,
+                        allowedMethods: cloudfront.CloudFrontAllowedMethods.GET_HEAD
+                    }],
                 }
             ]
         });
@@ -72,7 +95,7 @@ export class StaticSite extends Construct {
             zone
         });
 
-        const sourceBucket = s3.Bucket.fromBucketName(this, 'ArtifactBucket', source.bucketName);
+        const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
 
         // Deploy site contents to S3 bucket
         new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {

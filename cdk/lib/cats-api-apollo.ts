@@ -9,10 +9,13 @@ import * as s3 from '@aws-cdk/aws-s3';
 
 export interface CatsApi2Props {
     domainName: string
-    auth: CatsAuthentication,
-    zone: IHostedZone,
-    certificate: ICertificate,
-    source: s3.Location
+    auth: CatsAuthentication
+    zone: IHostedZone
+    certificate: ICertificate
+    source: {
+        bucketName: string
+        objectKey: string
+    }
 }
 
 export class CatsApiApollo extends cdk.Construct {
@@ -37,13 +40,11 @@ export class CatsApiApollo extends cdk.Construct {
             type: AuthorizationType.COGNITO
         }).ref;
 
-        const sourceBucket = s3.Bucket.fromBucketName(this, 'ArtifactBucket', source.bucketName);
-
-        const lambdaCode = Code.fromBucket(sourceBucket, source.objectKey, source.objectVersion);
+        const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
 
         const handler = new Function(this, 'ApolloHandler', {
             runtime: Runtime.NODEJS_12_X,
-            code: lambdaCode,
+            code: Code.fromBucket(sourceBucket, source.objectKey),
             handler: 'handler',
             description: `Function generated on: ${new Date().toISOString()}`,
         });
@@ -59,7 +60,6 @@ export class CatsApiApollo extends cdk.Construct {
             authorizationType: AuthorizationType.COGNITO,
             authorizer: { authorizerId }
         });
-
 
         const domain = new DomainName(this, 'custom-domain', {
             domainName,
