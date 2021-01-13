@@ -76,15 +76,15 @@ export class CatsStack extends cdk.Stack {
       }
     });
 
-    // const site = new StaticSite(this, "ClientSite", {
-    //   domainName: "cats.aws.jogus.io",
-    //   zone,
-    //   certificate,
-    //   source: {
-    //     bucketName: this.appCodeBucketName.valueAsString,
-    //     objectKey: this.appCodeObjectKey.valueAsString
-    //   }
-    // });
+    const site = new StaticSite(this, "AppSite", {
+      domainName: "cats.aws.jogus.io",
+      zone,
+      certificate,
+      source: {
+        bucketName: this.appCodeBucketName.valueAsString,
+        objectKey: this.appCodeObjectKey.valueAsString
+      }
+    });
 
     // const hitCounter = new HitCounter(this, 'CatsHitCounter', {
     //   downstream: catsHandler
