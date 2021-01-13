@@ -48,7 +48,7 @@ export class CatsApiApollo extends cdk.Construct {
         const handler = new Function(this, 'ApolloHandler', {
             runtime: Runtime.NODEJS_12_X,
             code: Code.fromBucket(sourceBucket, source.objectKey),
-            handler: 'handler',
+            handler: 'index.handler',
             description: `Function generated on: ${new Date().toISOString()}`,
         });
 
