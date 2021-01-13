@@ -1,9 +1,10 @@
 import { Stack, Construct, StackProps } from '@aws-cdk/core';
 import { Repository } from '@aws-cdk/aws-codecommit';
+import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
 import { CdkPipeline, SimpleSynthAction } from '@aws-cdk/pipelines';
-import { CatsPipelineBuildStage, CatsPipelineDeployStage } from './pipeline-stage';
+import { CatsPipelineDeployStage } from './pipeline-stage';
 
 export class CatsPipelineStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -40,13 +41,54 @@ export class CatsPipelineStack extends Stack {
 
                 buildCommand: 'npm run build', // Language-specific build cmd
                 subdirectory: 'cdk'
-            })
+            }),
         });
 
-        const build = new CatsPipelineBuildStage(this, 'BuildAssets', { source: sourceArtifact });
-        pipeline.addApplicationStage(build);
+        // const build = new CatsPipelineBuildStage(this, 'BuildAssets', { source: sourceArtifact });
+        // pipeline.addApplicationStage(build);
 
-        // const deploy = new CatsPipelineDeployStage(this, 'Deploy');
-        // pipeline.addApplicationStage(deploy);
+        const deploy = new CatsPipelineDeployStage(this, 'Deploy');
+        const deployStage = pipeline.addApplicationStage(deploy);
+        deployStage.addActions(
+            this.createLambdaBuildAction(sourceArtifact)
+        );
+    }
+
+    createLambdaBuildAction(source: codepipeline.Artifact): codepipeline.IAction {
+        const lambdaBuild = new codebuild.PipelineProject(this, 'LambdaBuild', {
+            buildSpec: codebuild.BuildSpec.fromObject({
+                version: '0.2',
+                phases: {
+                    install: {
+                        commands: [
+                            'cd app/lambda/apollo',
+                            'npm install',
+                        ],
+                    },
+                    build: {
+                        commands: 'npm run build',
+                    },
+                },
+                artifacts: {
+                    'base-directory': 'app/lambda/apollo',
+                    files: [
+                        'index.js',
+                        'node_modules/**/*',
+                    ],
+                },
+            }),
+            environment: {
+                buildImage: codebuild.LinuxBuildImage.STANDARD_2_0,
+            },
+        });
+
+        const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
+
+        return new codepipeline_actions.CodeBuildAction({
+            actionName: 'Lambda_Build',
+            project: lambdaBuild,
+            input: source,
+            outputs: [lambdaBuildOutput],
+        });
     }
 }
