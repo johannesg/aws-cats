@@ -5,17 +5,18 @@ import { Function, Runtime, Code } from '@aws-cdk/aws-lambda';
 import { IHostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
 import { ICertificate } from '@aws-cdk/aws-certificatemanager';
 import * as targets from '@aws-cdk/aws-route53-targets';
-import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
+import * as s3 from '@aws-cdk/aws-s3';
 
 export interface CatsApi2Props {
     domainName: string
     auth: CatsAuthentication,
     zone: IHostedZone,
-    certificate: ICertificate
+    certificate: ICertificate,
+    source: s3.Location
 }
 
 export class CatsApiApollo extends cdk.Construct {
-    constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate }: CatsApi2Props) {
+    constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate, source }: CatsApi2Props) {
         super(scope, id);
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
@@ -36,18 +37,15 @@ export class CatsApiApollo extends cdk.Construct {
             type: AuthorizationType.COGNITO
         }).ref;
 
-        const handler = new NodejsFunction(this, 'ApolloHandler', {
+        const sourceBucket = s3.Bucket.fromBucketName(this, 'ArtifactBucket', source.bucketName);
+
+        const lambdaCode = Code.fromBucket(sourceBucket, source.objectKey, source.objectVersion);
+
+        const handler = new Function(this, 'ApolloHandler', {
             runtime: Runtime.NODEJS_12_X,
-            entry: '../app/lambda/apollo/index.ts',
-            // code: Code.fromAsset('../app/lambda/apollo'),
+            code: lambdaCode,
             handler: 'handler',
-            bundling: {
-                // commandHooks: {
-                //     afterBundling: () => ([]),
-                //     beforeBundling: (inputDir) => [`npm run generate --prefix ${inputDir}`],
-                //     beforeInstall: (inputDir) => [`npm --prefix ci`]
-                // }
-            }
+            description: `Function generated on: ${new Date().toISOString()}`,
         });
 
         const integration = new LambdaIntegration(handler, {});

@@ -18,4 +18,9 @@ const app = new App();
 //       region: process.env.CDK_DEFAULT_REGION 
 //   }});
 
-new CatsPipelineStack(app, 'CatsPipelineStack');
+new CatsPipelineStack(app, 'CatsPipelineStack', {
+    env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION
+    }
+});

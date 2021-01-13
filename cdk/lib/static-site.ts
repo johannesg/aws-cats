@@ -10,7 +10,7 @@ import { Construct } from '@aws-cdk/core';
 
 export interface StaticSiteProps {
     domainName: string
-    source: string
+    source: s3.Location,
     zone: route53.IHostedZone
     certificate: ICertificate
 }
@@ -72,9 +72,11 @@ export class StaticSite extends Construct {
             zone
         });
 
+        const sourceBucket = s3.Bucket.fromBucketName(this, 'ArtifactBucket', source.bucketName);
+
         // Deploy site contents to S3 bucket
         new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
-            sources: [ s3deploy.Source.asset(source) ],
+            sources: [ s3deploy.Source.bucket(sourceBucket, source.objectKey) ],
             destinationBucket: siteBucket,
             distribution,
             distributionPaths: ['/*'],

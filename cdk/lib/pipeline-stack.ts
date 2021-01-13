@@ -4,7 +4,7 @@ import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
 import { CdkPipeline, SimpleSynthAction } from '@aws-cdk/pipelines';
-import { CatsPipelineDeployStage } from './pipeline-stage';
+import { CatsPipelineStage } from './pipeline-stage';
 
 export class CatsPipelineStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -47,15 +47,18 @@ export class CatsPipelineStack extends Stack {
         // const build = new CatsPipelineBuildStage(this, 'BuildAssets', { source: sourceArtifact });
         // pipeline.addApplicationStage(build);
 
-        const deploy = new CatsPipelineDeployStage(this, 'Deploy');
+        const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
+        const appBuildOutput = new codepipeline.Artifact('AppBuildOutput');
+
+        const deploy = new CatsPipelineStage(this, 'Deploy', { appArtifact: appBuildOutput, lambdaArtifact: lambdaBuildOutput });
         const deployStage = pipeline.addApplicationStage(deploy);
         deployStage.addActions(
-            this.createLambdaBuildAction(sourceArtifact),
-            this.createAppBuildAction(sourceArtifact)
+            this.createLambdaBuildAction(sourceArtifact, lambdaBuildOutput),
+            this.createAppBuildAction(sourceArtifact, appBuildOutput)
         );
     }
 
-    createLambdaBuildAction(source: codepipeline.Artifact): codepipeline.IAction {
+    createLambdaBuildAction(source: codepipeline.Artifact, output: codepipeline.Artifact): codepipeline.IAction {
         const lambdaBuild = new codebuild.PipelineProject(this, 'LambdaBuild', {
             buildSpec: codebuild.BuildSpec.fromObject({
                 version: '0.2',
@@ -82,17 +85,15 @@ export class CatsPipelineStack extends Stack {
             },
         });
 
-        const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
-
         return new codepipeline_actions.CodeBuildAction({
             actionName: 'Lambda_Build',
             project: lambdaBuild,
             input: source,
-            outputs: [lambdaBuildOutput],
+            outputs: [output],
         });
     }
 
-    createAppBuildAction(source: codepipeline.Artifact): codepipeline.IAction {
+    createAppBuildAction(source: codepipeline.Artifact, output: codepipeline.Artifact): codepipeline.IAction {
         const appBuild = new codebuild.PipelineProject(this, 'AppBuild', {
             buildSpec: codebuild.BuildSpec.fromObject({
                 version: '0.2',
@@ -119,13 +120,11 @@ export class CatsPipelineStack extends Stack {
             },
         });
 
-        const appBuildOutput = new codepipeline.Artifact('AppBuildOutput');
-
         return new codepipeline_actions.CodeBuildAction({
             actionName: 'App_Build',
             project: appBuild,
             input: source,
-            outputs: [appBuildOutput],
+            outputs: [output],
         });
     }
 }

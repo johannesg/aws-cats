@@ -1,13 +1,17 @@
 import * as cdk from '@aws-cdk/core';
 import { HostedZone } from '@aws-cdk/aws-route53';
 import { CatsAuthentication } from './cats-auth';
-import { CatsApi } from './cats-api';
 import { CatsApiApollo } from './cats-api-apollo';
 import { StaticSite } from './static-site';
-import { ICertificate, Certificate } from '@aws-cdk/aws-certificatemanager';
+import { Certificate } from '@aws-cdk/aws-certificatemanager';
+import * as s3 from '@aws-cdk/aws-s3';
 
 export interface CatsStackProps extends cdk.StackProps {
   // certificate: ICertificate
+  sources: {
+    app: s3.Location,
+    lambda: s3.Location
+  }
 }
 
 
@@ -44,12 +48,13 @@ export class CatsStack extends cdk.Stack {
       domainName: "catsapi.aws.jogus.io",
       auth, 
       zone, 
-      certificate
+      certificate,
+      source: props.sources.lambda
     });
 
     const site = new StaticSite(this, "ClientSite", {
       domainName: "cats.aws.jogus.io",
-      source: "../app/client/public",
+      source: props.sources.app,
       zone,
       certificate
     });
