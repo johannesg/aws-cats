@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import cloudfront = require('@aws-cdk/aws-cloudfront');
-import route53 = require('@aws-cdk/aws-route53');
-import s3 = require('@aws-cdk/aws-s3');
-import s3deploy = require('@aws-cdk/aws-s3-deployment');
+import * as cloudfront from '@aws-cdk/aws-cloudfront';
+import * as origins from '@aws-cdk/aws-cloudfront-origins';
+import * as route53 from '@aws-cdk/aws-route53';
+import * as s3 from '@aws-cdk/aws-s3';
+import * as s3deploy from '@aws-cdk/aws-s3-deployment';
 import { ICertificate } from '@aws-cdk/aws-certificatemanager';
-import cdk = require('@aws-cdk/core');
-import targets = require('@aws-cdk/aws-route53-targets/lib');
+import * as cdk from '@aws-cdk/core';
+import * as targets from '@aws-cdk/aws-route53-targets/lib';
 import { Construct } from '@aws-cdk/core';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import { IRepository } from '@aws-cdk/aws-codecommit';
@@ -51,29 +52,13 @@ export class StaticSite extends Construct {
         new cdk.CfnOutput(this, 'Bucket', { value: siteBucket.bucketName });
 
         // CloudFront distribution that provides HTTPS
-        const distribution = new cloudfront.CloudFrontWebDistribution(this, 'SiteDistribution', {
-            aliasConfiguration: {
-                acmCertRef: certificateArn,
-                names: [domainName],
-                sslMethod: cloudfront.SSLMethod.SNI,
-                securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
-            },
-            originConfigs: [
-                {
-                    s3OriginSource: {
-                        s3BucketSource: siteBucket
-                    },
-                    customOriginSource: {
-                        domainName: siteBucket.bucketWebsiteDomainName,
-                        originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
-                    },
-                    behaviors: [{
-                        isDefaultBehavior: true,
-                        allowedMethods: cloudfront.CloudFrontAllowedMethods.GET_HEAD
-                    }],
-                }
-            ]
+        const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {
+            certificate,
+            domainNames: [domainName],
+            minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
+            defaultBehavior: { origin: new origins.S3Origin(siteBucket) }
         });
+
         new cdk.CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
 
         // // Route53 alias record for the CloudFront distribution
