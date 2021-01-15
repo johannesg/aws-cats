@@ -15,8 +15,8 @@ export class S3ObjectParameter {
         this.objectKeyParam = new CfnParameter(scope, `${id}_ObjectKey`, { type: 'String'});
 
         if (props && props.createOutput) {
-            new CfnOutput(scope, this.bucketNameParam.logicalId, { value: this.bucketNameParam.valueAsString});
-            new CfnOutput(scope, this.objectKeyParam.logicalId, { value: this.objectKeyParam.valueAsString});
+            new CfnOutput(scope, `Param_${id}_BucketName`, { value: this.bucketNameParam.valueAsString});
+            new CfnOutput(scope, `Param_${id}_ObjectKey`, { value: this.objectKeyParam.valueAsString});
         }
     }
 
