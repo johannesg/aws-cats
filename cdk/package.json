@@ -10,7 +10,8 @@
     "test": "jest",
     "cdk": "cdk",
     "login": "aws cognito-idp initiate-auth --region eu-north-1 --cli-input-json file://test/auth-user.json",
-    "setuserpassword": "aws cognito-idp admin-set-user-password --region eu-north-1 --cli-input-json file://test/auth-user-password.json"
+    "setuserpassword": "aws cognito-idp admin-set-user-password --region eu-north-1 --cli-input-json file://test/auth-user-password.json",
+    "createuser": "aws cognito-idp admin-create-user --region eu-north-1 --cli-input-json file://test/auth-create-user.json"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^1.85.0",

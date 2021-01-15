@@ -1,0 +1,23 @@
+{
+    "UserPoolId": "eu-north-1_q4lnBAOyq",
+    "Username": "johannes",
+    "MessageAction": "SUPPRESS",
+    "UserAttributes": [
+        {
+            "Name": "phone_number_verified",
+            "Value": "true"
+        },
+        {
+            "Name": "email_verified",
+            "Value": "true"
+        },
+        {
+            "Name": "email",
+            "Value": "johannesgu@gmail.com"
+        },
+        {
+            "Name": "phone_number",
+            "Value": "+46709575875"
+        }
+    ]
+}
