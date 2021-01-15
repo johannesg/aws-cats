@@ -11,6 +11,7 @@ import { Construct } from '@aws-cdk/core';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import { IRepository } from '@aws-cdk/aws-codecommit';
 import * as lambda from '@aws-cdk/aws-lambda';
+import { AllowedMethods } from '@aws-cdk/aws-cloudfront';
 
 export interface StaticSiteProps {
     domainName: string
@@ -54,7 +55,11 @@ export class StaticSite extends Construct {
             certificate,
             domainNames: [domainName],
             minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
-            defaultBehavior: { origin: new origins.S3Origin(siteBucket) }
+            defaultBehavior: { 
+                origin: new origins.S3Origin(siteBucket),
+                allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
+                viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+            }
         });
 
         new cdk.CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
