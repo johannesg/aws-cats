@@ -9,7 +9,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "login": "aws cognito-idp initiate-auth --region eu-north-1 --cli-input-json file://test/auth-user.json"
+    "login": "aws cognito-idp initiate-auth --region eu-north-1 --cli-input-json file://test/auth-user.json",
+    "setuserpassword": "aws cognito-idp admin-set-user-password --region eu-north-1 --cli-input-json file://test/auth-user-password.json"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^1.85.0",

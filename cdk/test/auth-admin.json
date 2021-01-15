@@ -1,9 +1,0 @@
-{
-    "UserPoolId": "eu-north-1_XZe78xvaL",
-    "ClientId": "57cpu0m72grd0654nils0hnldn",
-    "AuthFlow": "ADMIN_USER_PASSWORD_AUTH",
-    "AuthParameters": {
-        "USERNAME": "johannes",
-        "PASSWORD": "Kalle123!"
-    }
-}
