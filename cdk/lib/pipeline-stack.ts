@@ -51,67 +51,68 @@ export class CatsPipelineStack extends Stack {
         const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
         const appBuildOutput = new codepipeline.Artifact('AppBuildOutput');
 
+        const sourceAction = new codepipeline_actions.CodeCommitSourceAction({
+            actionName: 'CodeCommit', // Any Git-based source control
+            output: sourceOutput, // Indicates where the artifact is stored
+            repository: repo // Designates the repo to draw code from
+        })
+        const lambdaBuildAction = new codepipeline_actions.CodeBuildAction({
+            actionName: 'Lambda_Build',
+            project: lambdaBuild,
+            input: sourceOutput,
+            outputs: [lambdaBuildOutput],
+        });
+        const appBuildAction = new codepipeline_actions.CodeBuildAction({
+            actionName: 'App_Build',
+            project: appBuild,
+            input: sourceOutput,
+            outputs: [appBuildOutput],
+        });
+        const cdkBuildAction = new codepipeline_actions.CodeBuildAction({
+            actionName: 'CDK_Build',
+            project: cdkBuild,
+            input: sourceOutput,
+            outputs: [cdkBuildOutput],
+        });
+
+        const deployAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
+            actionName: 'Cats_CFN_Deploy',
+            templatePath: cdkBuildOutput.atPath('CatsStack.template.json'),
+            stackName: 'CatsStack',
+            adminPermissions: true,
+            parameterOverrides: {
+                ... {
+                    lambdaCodeBucketName: lambdaBuildOutput.s3Location.bucketName,
+                    lambdaCodeObjectKey: lambdaBuildOutput.s3Location.objectKey
+                },
+                ...{
+                    appCodeBucketName: appBuildOutput.s3Location.bucketName,
+                    appCodeObjectKey: appBuildOutput.s3Location.objectKey
+                }
+            },
+            extraInputs: [lambdaBuildOutput, appBuildOutput],
+        });
 
         // Complete Pipeline Project
-        new codepipeline.Pipeline(this, 'Pipeline', {
+        const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
             restartExecutionOnUpdate: true,
+            crossAccountKeys: false,
             stages: [
                 {
                     stageName: 'Source',
-                    actions: [
-                        new codepipeline_actions.CodeCommitSourceAction({
-                            actionName: 'CodeCommit', // Any Git-based source control
-                            output: sourceOutput, // Indicates where the artifact is stored
-                            repository: repo // Designates the repo to draw code from
-                        })],
+                    actions: [sourceAction]
                 },
                 {
                     stageName: 'Build',
-                    actions: [
-                        new codepipeline_actions.CodeBuildAction({
-                            actionName: 'Lambda_Build',
-                            project: lambdaBuild,
-                            input: sourceOutput,
-                            outputs: [lambdaBuildOutput],
-                        }),
-                        new codepipeline_actions.CodeBuildAction({
-                            actionName: 'App_Build',
-                            project: appBuild,
-                            input: sourceOutput,
-                            outputs: [appBuildOutput],
-                        }),
-                        new codepipeline_actions.CodeBuildAction({
-                            actionName: 'CDK_Build',
-                            project: cdkBuild,
-                            input: sourceOutput,
-                            outputs: [cdkBuildOutput],
-                        }),
-                    ],
+                    actions: [lambdaBuildAction, appBuildAction, cdkBuildAction]
                 },
                 {
                     stageName: 'Deploy',
-                    actions: [
-                        new codepipeline_actions.CloudFormationCreateUpdateStackAction({
-                            actionName: 'Cats_CFN_Deploy',
-                            templatePath: cdkBuildOutput.atPath('CatsStack.template.json'),
-                            stackName: 'CatsStack',
-                            adminPermissions: true,
-                            parameterOverrides: {
-                                // ...props.lambdaCode.assign(lambdaBuildOutput.s3Location),
-                                ... {
-                                    lambdaCodeBucketName: lambdaBuildOutput.s3Location.bucketName,
-                                    lambdaCodeObjectKey: lambdaBuildOutput.s3Location.objectKey
-                                },
-                                ...{
-                                    appCodeBucketName: appBuildOutput.s3Location.bucketName,
-                                    appCodeObjectKey: appBuildOutput.s3Location.objectKey
-                                }
-                            },
-                            extraInputs: [lambdaBuildOutput, appBuildOutput],
-                        }),
-                    ],
+                    actions: [deployAction]
                 },
             ],
         });
+
+        pipeline.artifactBucket.grantRead(deployAction.deploymentRole);
     }
 }
