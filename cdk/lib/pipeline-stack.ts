@@ -13,7 +13,7 @@ export class CatsPipelineStack extends Stack {
 
         // Creates a CodeCommit repository called 'WorkshopRepo'
         const repo = new Repository(this, 'CatsRepo', {
-            repositoryName: "CatsRepo"
+            repositoryName: "Cats"
         });
 
         const cdkBuild = new codebuild.PipelineProject(this, 'CdkBuild', {
