@@ -36,7 +36,7 @@ export class StaticSite extends Construct {
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
         // Content bucket
-        const siteBucket = new s3.Bucket(this, 'SiteBucket', {
+        const siteBucket = new s3.Bucket(this, 'SiteBucket2', {
             // bucketName: domainName,
             // websiteIndexDocument: 'index.html',
             // websiteErrorDocument: 'error.html',
@@ -54,6 +54,7 @@ export class StaticSite extends Construct {
         const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {
             certificate,
             domainNames: [domainName],
+            defaultRootObject: "index.html",
             minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018,
             defaultBehavior: { 
                 origin: new origins.S3Origin(siteBucket),
