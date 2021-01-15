@@ -3,8 +3,10 @@ import { Repository } from '@aws-cdk/aws-codecommit';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
+import { CatsStack } from './cats-stack';
 
 type CatsPipelineStackProps = StackProps & {
+    cats: CatsStack
 }
 
 export class CatsPipelineStack extends Stack {
@@ -73,10 +75,8 @@ export class CatsPipelineStack extends Stack {
             stackName: 'CatsStack',
             adminPermissions: true,
             parameterOverrides: {
-                lambdaCodeBucketName: lambdaBuildOutput.s3Location.bucketName,
-                lambdaCodeObjectKey: lambdaBuildOutput.s3Location.objectKey,
-                appCodeBucketName: appBuildOutput.s3Location.bucketName,
-                appCodeObjectKey: appBuildOutput.s3Location.objectKey
+                ...props.cats.lambdaCode.assign(lambdaBuildOutput.s3Location),
+                ...props.cats.appCode.assign(appBuildOutput.s3Location),
             },
             extraInputs: [lambdaBuildOutput, appBuildOutput],
         });

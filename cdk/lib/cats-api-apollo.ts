@@ -12,10 +12,7 @@ export interface CatsApi2Props {
     auth: CatsAuthentication
     zone: IHostedZone
     certificate: ICertificate
-    source: {
-        bucketName: string
-        objectKey: string
-    }
+    source: s3.Location
 }
 
 export class CatsApiApollo extends cdk.Construct {

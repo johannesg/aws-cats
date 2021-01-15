@@ -8,19 +8,13 @@ import { ICertificate } from '@aws-cdk/aws-certificatemanager';
 import * as cdk from '@aws-cdk/core';
 import * as targets from '@aws-cdk/aws-route53-targets/lib';
 import { Construct } from '@aws-cdk/core';
-import * as codebuild from '@aws-cdk/aws-codebuild';
-import { IRepository } from '@aws-cdk/aws-codecommit';
-import * as lambda from '@aws-cdk/aws-lambda';
 import { AllowedMethods } from '@aws-cdk/aws-cloudfront';
 
 export interface StaticSiteProps {
     domainName: string
     zone: route53.IHostedZone
     certificate: ICertificate
-    source: {
-        bucketName: string
-        objectKey: string
-    }
+    source: s3.Location
 }
 
 /**
@@ -66,9 +60,6 @@ export class StaticSite extends Construct {
             target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
             zone
         });
-
-        // new cdk.CfnOutput(this, "AppCodeBucketName", { value : source.bucketName });
-        // new cdk.CfnOutput(this, "AppCodeObjectKey", { value : source.objectKey });
 
         const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
         

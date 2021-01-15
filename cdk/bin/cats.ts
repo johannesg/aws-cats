@@ -11,13 +11,14 @@ const app = new App();
 //       account: process.env.CDK_DEFAULT_ACCOUNT, 
 //       region: process.env.CDK_DEFAULT_REGION 
 //   }});
-new CatsStack(app, 'CatsStack', {
+const cats = new CatsStack(app, 'CatsStack', {
     env: { 
       account: process.env.CDK_DEFAULT_ACCOUNT, 
       region: process.env.CDK_DEFAULT_REGION 
   }});
 
 new CatsPipelineStack(app, 'CatsPipelineStack', {
+    cats,
     env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,
         region: process.env.CDK_DEFAULT_REGION
