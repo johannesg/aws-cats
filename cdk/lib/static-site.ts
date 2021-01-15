@@ -36,12 +36,7 @@ export class StaticSite extends Construct {
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
         // Content bucket
-        const siteBucket = new s3.Bucket(this, 'SiteBucket2', {
-            // bucketName: domainName,
-            // websiteIndexDocument: 'index.html',
-            // websiteErrorDocument: 'error.html',
-            // publicReadAccess: true,
-
+        const siteBucket = new s3.Bucket(this, 'SiteBucket', {
             // The default removal policy is RETAIN, which means that cdk destroy will not attempt to delete
             // the new bucket, and it will remain in your account until manually deleted. By setting the policy to
             // DESTROY, cdk destroy will attempt to delete the bucket, but will error if the bucket is not empty.
@@ -78,11 +73,11 @@ export class StaticSite extends Construct {
         const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
 
         // Deploy site contents to S3 bucket
-        // new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
-        //     sources: [s3deploy.Source.bucket(sourceBucket, source.objectKey)],
-        //     destinationBucket: siteBucket,
-        //     distribution,
-        //     distributionPaths: ['/*'],
-        // });
+        new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
+            sources: [s3deploy.Source.bucket(sourceBucket, source.objectKey)],
+            destinationBucket: siteBucket,
+            distribution,
+            distributionPaths: ['/*'],
+        });
     }
 }
