@@ -73,14 +73,10 @@ export class CatsPipelineStack extends Stack {
             stackName: 'CatsStack',
             adminPermissions: true,
             parameterOverrides: {
-                ... {
-                    lambdaCodeBucketName: lambdaBuildOutput.s3Location.bucketName,
-                    lambdaCodeObjectKey: lambdaBuildOutput.s3Location.objectKey
-                },
-                ...{
-                    appCodeBucketName: appBuildOutput.s3Location.bucketName,
-                    appCodeObjectKey: appBuildOutput.s3Location.objectKey
-                }
+                lambdaCodeBucketName: lambdaBuildOutput.s3Location.bucketName,
+                lambdaCodeObjectKey: lambdaBuildOutput.s3Location.objectKey,
+                appCodeBucketName: appBuildOutput.s3Location.bucketName,
+                appCodeObjectKey: appBuildOutput.s3Location.objectKey
             },
             extraInputs: [lambdaBuildOutput, appBuildOutput],
         });
