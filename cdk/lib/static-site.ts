@@ -32,21 +32,19 @@ export class StaticSite extends Construct {
     constructor(parent: Construct, name: string, { zone, domainName, source, certificate }: StaticSiteProps) {
         super(parent, name);
 
-        const { certificateArn } = certificate;
-
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
         // Content bucket
         const siteBucket = new s3.Bucket(this, 'SiteBucket', {
             // bucketName: domainName,
-            // websiteIndexDocument: 'index.html',
-            // websiteErrorDocument: 'error.html',
+            websiteIndexDocument: 'index.html',
+            websiteErrorDocument: 'error.html',
             // publicReadAccess: true,
 
-            // // The default removal policy is RETAIN, which means that cdk destroy will not attempt to delete
-            // // the new bucket, and it will remain in your account until manually deleted. By setting the policy to
-            // // DESTROY, cdk destroy will attempt to delete the bucket, but will error if the bucket is not empty.
-            // removalPolicy: cdk.RemovalPolicy.DESTROY, // NOT recommended for production code
+            // The default removal policy is RETAIN, which means that cdk destroy will not attempt to delete
+            // the new bucket, and it will remain in your account until manually deleted. By setting the policy to
+            // DESTROY, cdk destroy will attempt to delete the bucket, but will error if the bucket is not empty.
+            removalPolicy: cdk.RemovalPolicy.DESTROY, // NOT recommended for production code
         });
 
         new cdk.CfnOutput(this, 'Bucket', { value: siteBucket.bucketName });
@@ -67,9 +65,6 @@ export class StaticSite extends Construct {
             target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
             zone
         });
-
-        new cdk.CfnOutput(this, 'AppCodeBucketName', { value: source.bucketName });
-        new cdk.CfnOutput(this, 'AppCodeObjectKey', { value: source.objectKey });
 
         const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
 

@@ -1,18 +1,10 @@
-import { Stack, Construct, StackProps, CfnParameter } from '@aws-cdk/core';
+import { Stack, Construct, StackProps } from '@aws-cdk/core';
 import { Repository } from '@aws-cdk/aws-codecommit';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
-// import { CdkPipeline, SimpleSynthAction } from '@aws-cdk/pipelines';
-// import { CatsPipelineStage } from './pipeline-stage';
-import * as lambda from '@aws-cdk/aws-lambda';
 
 type CatsPipelineStackProps = StackProps & {
-    // lambdaCode: lambda.CfnParametersCode
-    // appCode: {
-    //     bucketName: CfnParameter
-    //     objectKey: CfnParameter
-    // }
 }
 
 export class CatsPipelineStack extends Stack {
