@@ -7,7 +7,8 @@ import { Cats } from './cats'
 export const resolvers : Resolvers = {
     Query: {
         me: (_, __, { user }) => user,
-        cats: () => ({})
+        cats: () => ({}),
+        hello: () => "Hello V2"
     },
 
     Cats,

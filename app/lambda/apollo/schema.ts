@@ -10,6 +10,7 @@ export default gql`
     type Query {
         cats: Cats
         me: User
+        hello: String!
     }
 
     # type Mutation {
