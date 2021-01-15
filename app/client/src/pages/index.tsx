@@ -119,7 +119,7 @@ function App() {
 
 export default function Index() {
   return (
-    <Layout title="Cats V2">
+    <Layout title="Cats V3">
       <AuthProvider>
         <App />
       </AuthProvider>

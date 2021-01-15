@@ -8,7 +8,7 @@ export const resolvers : Resolvers = {
     Query: {
         me: (_, __, { user }) => user,
         cats: () => ({}),
-        hello: () => "Hello V2"
+        hello: () => "Hello V3"
     },
 
     Cats,
