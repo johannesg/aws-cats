@@ -23,7 +23,7 @@ export interface StaticSiteProps {
  * The site redirects from HTTP to HTTPS, using a CloudFront distribution,
  * Route53 alias record, and ACM certificate.
  */
-export class StaticSite extends Construct {
+export class CatsApp extends Construct {
     constructor(parent: Construct, name: string, { zone, domainName, source, certificate }: StaticSiteProps) {
         super(parent, name);
 

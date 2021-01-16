@@ -1,10 +1,10 @@
 import * as cdk from '@aws-cdk/core';
 import { HostedZone } from '@aws-cdk/aws-route53';
-import { CatsAuthentication } from './cats-auth';
-import { CatsApiApollo } from './cats-api-apollo';
-import { StaticSite } from './static-site';
 import { Certificate } from '@aws-cdk/aws-certificatemanager';
 import { Repository } from '@aws-cdk/aws-codecommit';
+import { CatsAuthentication } from './cats-auth';
+import { CatsApi } from './cats-api';
+import { CatsApp } from './cats-app';
 import { S3ObjectParameter } from './utils';
 
 export interface CatsStackProps extends cdk.StackProps {
@@ -17,8 +17,8 @@ export class CatsStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: CatsStackProps) {
     super(scope, id, props);
 
-    this.lambdaCode = new S3ObjectParameter(this, "LambdaCode", { createOutput: true });
-    this.appCode = new S3ObjectParameter(this, "AppCode", { createOutput: true });
+    this.lambdaCode = new S3ObjectParameter(this, "LambdaCode");
+    this.appCode = new S3ObjectParameter(this, "AppCode");
 
     const certificate = Certificate.fromCertificateArn(this, "CatsCert", "arn:aws:acm:us-east-1:700595718361:certificate/37ff910c-28e1-4e64-b77f-806eef9d1ff0");
 
@@ -37,7 +37,7 @@ export class CatsStack extends cdk.Stack {
 
     // const appsync = new CatsApi(this, "Api", { auth });
 
-    const api = new CatsApiApollo(this, "ApiApollo", {
+    const api = new CatsApi(this, "ApiApollo", {
       domainName: "catsapi.aws.jogus.io",
       auth,
       zone,
@@ -45,7 +45,7 @@ export class CatsStack extends cdk.Stack {
       source: this.lambdaCode.location
     });
 
-    const site = new StaticSite(this, "AppSite", {
+    const site = new CatsApp(this, "AppSite", {
       domainName: "cats.aws.jogus.io",
       zone,
       certificate,

@@ -1,37 +1,79 @@
 import * as cdk from '@aws-cdk/core';
-import { AuthorizationType, GraphqlApi, Schema } from '@aws-cdk/aws-appsync'
+import { RestApi, LambdaIntegration, CfnAuthorizer, AuthorizationType, DomainName, SecurityPolicy, EndpointType, Cors } from '@aws-cdk/aws-apigateway';
 import { CatsAuthentication } from './cats-auth';
 import { Function, Runtime, Code } from '@aws-cdk/aws-lambda';
+import { IHostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
+import { ICertificate } from '@aws-cdk/aws-certificatemanager';
+import * as targets from '@aws-cdk/aws-route53-targets';
+import * as s3 from '@aws-cdk/aws-s3';
 
 export interface CatsApiProps {
+    domainName: string
     auth: CatsAuthentication
+    zone: IHostedZone
+    certificate: ICertificate
+    source: s3.Location
 }
 
 export class CatsApi extends cdk.Construct {
-    constructor(scope: cdk.Construct, id: string, props: CatsApiProps) {
+    constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate, source }: CatsApiProps) {
         super(scope, id);
 
-        const api = new GraphqlApi(this, "CatsApi", {
-            name: "cats-api",
-            authorizationConfig: {
-                defaultAuthorization: {
-                    authorizationType: AuthorizationType.USER_POOL,
-                    userPoolConfig: { userPool: props.auth.userPool }
-                }
-            },
-            schema: Schema.fromAsset("../app/schema.graphql")
-        });
+        new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
-        const handler = new Function(this, 'GraphQLHandler', {
+        const api = new RestApi(this, "CatsApiGraphQL", {
+            restApiName: "cats-api-graphql",
+            defaultCorsPreflightOptions: {
+                allowOrigins: Cors.ALL_ORIGINS,
+                allowMethods: Cors.ALL_METHODS // this is also the default
+            }
+        })
+
+        const authorizerId = new CfnAuthorizer(this, "APIGatewayAuthorizer", {
+            name: "cats-authorizer",
+            identitySource: "method.request.header.Authorization",
+            providerArns: [auth.userPool.userPoolArn],
+            restApiId: api.restApiId,
+            type: AuthorizationType.COGNITO
+        }).ref;
+
+        new cdk.CfnOutput(this, 'LambdaCodeBucketName', { value: source.bucketName });
+        new cdk.CfnOutput(this, 'LambdaCodeObjectKey', { value: source.objectKey });
+
+        const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
+
+        const handler = new Function(this, 'ApolloHandler', {
             runtime: Runtime.NODEJS_12_X,
-            code: Code.fromAsset('../app/lambda/graphql'),
-            handler: 'handler.handler'
+            code: Code.fromBucket(sourceBucket, source.objectKey),
+            handler: 'index.handler',
+            description: `Function generated on: ${new Date().toISOString()}`,
         });
 
-        const lambdaDS = api.addLambdaDataSource("graphql", handler);
-        lambdaDS.createResolver({typeName: "Query", fieldName: "hello"})
-        lambdaDS.createResolver({typeName: "Query", fieldName: "me"})
+        const integration = new LambdaIntegration(handler, {});
 
-        new cdk.CfnOutput(this, "GraphQLAPIURL", { value: api.graphqlUrl });
+        const get = api.root.addMethod("GET", integration, {
+            authorizationType: AuthorizationType.COGNITO,
+            authorizer: { authorizerId }
+        });
+
+        const post = api.root.addMethod("POST", integration, {
+            authorizationType: AuthorizationType.COGNITO,
+            authorizer: { authorizerId }
+        });
+
+        const domain = new DomainName(this, 'custom-domain', {
+            domainName,
+            certificate: certificate,
+            endpointType: EndpointType.EDGE, // default is REGIONAL
+            securityPolicy: SecurityPolicy.TLS_1_2
+        });
+
+        domain.addBasePathMapping(api, { basePath: 'graphql' });
+
+        new ARecord(this, 'CustomDomainAliasRecord', {
+            recordName: domainName,
+            zone,
+            target: RecordTarget.fromAlias(new targets.ApiGatewayDomain(domain))
+        });
     }
 }

@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@aws-cdk/aws-apigateway": "^1.85.0",
-    "@aws-cdk/aws-appsync": "^1.85.0",
     "@aws-cdk/aws-cloudfront": "^1.85.0",
     "@aws-cdk/aws-cloudfront-origins": "^1.85.0",
     "@aws-cdk/aws-codecommit": "^1.85.0",
@@ -38,8 +37,6 @@
     "@aws-cdk/aws-s3": "^1.85.0",
     "@aws-cdk/aws-s3-deployment": "^1.85.0",
     "@aws-cdk/core": "^1.85.0",
-    "@aws-cdk/pipelines": "^1.85.0",
-    "aws-sdk": "^2.828.0",
     "source-map-support": "^0.5.16"
   }
 }
