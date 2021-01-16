@@ -1,7 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import { HostedZone } from '@aws-cdk/aws-route53';
 import { Certificate } from '@aws-cdk/aws-certificatemanager';
-import { Repository } from '@aws-cdk/aws-codecommit';
 import { CatsAuthentication } from './cats-auth';
 import { CatsApi } from './cats-api';
 import { CatsApp } from './cats-app';
@@ -22,20 +21,9 @@ export class CatsStack extends cdk.Stack {
 
     const certificate = Certificate.fromCertificateArn(this, "CatsCert", "arn:aws:acm:us-east-1:700595718361:certificate/37ff910c-28e1-4e64-b77f-806eef9d1ff0");
 
-    // The code that defines your stack goes here
-    // new s3.Bucket(this, 'cats', {
-    //   versioned: true,
-    //   // publicReadAccess: true,
-    //   removalPolicy: cdk.RemovalPolicy.DESTROY
-    // });
-
     const zone = HostedZone.fromLookup(this, 'Zone', { domainName: "aws.jogus.io" });
 
     const auth = new CatsAuthentication(this, "Auth");
-
-    const repo = Repository.fromRepositoryName(this, "CatsRepo", "CatsRepo");
-
-    // const appsync = new CatsApi(this, "Api", { auth });
 
     const api = new CatsApi(this, "ApiApollo", {
       domainName: "catsapi.aws.jogus.io",
@@ -51,13 +39,5 @@ export class CatsStack extends cdk.Stack {
       certificate,
       source: this.appCode.location
     });
-
-    // const hitCounter = new HitCounter(this, 'CatsHitCounter', {
-    //   downstream: catsHandler
-    // });
-
-    // new apigw.LambdaRestApi(this, 'CatsEndpoint', {
-    //   handler: hitCounter.handler
-    // });
   }
 }

@@ -59,7 +59,7 @@ export class CatsApi extends cdk.Construct {
             authorizer: { authorizerId }
         });
 
-        const domain = new DomainName(this, 'CustomDomain', {
+        const domain = new DomainName(this, 'custom-domain', {
             domainName,
             certificate: certificate,
             endpointType: EndpointType.EDGE, // default is REGIONAL

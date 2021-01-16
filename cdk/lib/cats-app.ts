@@ -10,21 +10,15 @@ import * as targets from '@aws-cdk/aws-route53-targets/lib';
 import { Construct } from '@aws-cdk/core';
 import { AllowedMethods } from '@aws-cdk/aws-cloudfront';
 
-export interface StaticSiteProps {
+export interface CatsAppProps {
     domainName: string
     zone: route53.IHostedZone
     certificate: ICertificate
     source: s3.Location
 }
 
-/**
- * Static site infrastructure, which deploys site content to an S3 bucket.
- *
- * The site redirects from HTTP to HTTPS, using a CloudFront distribution,
- * Route53 alias record, and ACM certificate.
- */
 export class CatsApp extends Construct {
-    constructor(parent: Construct, name: string, { zone, domainName, source, certificate }: StaticSiteProps) {
+    constructor(parent: Construct, name: string, { zone, domainName, source, certificate }: CatsAppProps) {
         super(parent, name);
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
