@@ -11,3 +11,4 @@ artifacts:
   base-directory: app/lambda
   files: 
     - index.js
+    - index.js.map

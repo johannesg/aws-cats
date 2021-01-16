@@ -10,7 +10,7 @@
     "watch-ql": "graphql-codegen -w",
     "generate": "graphql-codegen",
     "build": "graphql-codegen && tsc",
-    "esbuild": "esbuild index.ts --bundle --outfile=index.js --platform=node --target=node12 --external:aws-sdk"
+    "esbuild": "esbuild index.ts --bundle --outfile=index.js --platform=node --target=node12 --external:aws-sdk --sourcemap"
   },
   "keywords": [],
   "author": "",

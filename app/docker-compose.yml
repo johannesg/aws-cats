@@ -17,7 +17,7 @@ services:
     environment:
       DOCKER_LAMBDA_WATCH: 1
       DOCKER_LAMBDA_STAY_OPEN: 1
-      NODE_OPTIONS: --inspect=0.0.0.0:9229
+      NODE_OPTIONS: --inspect=0.0.0.0:9229 --enable-source-maps
 
       #
       # NODE_TLS_REJECT_UNAUTHORIZED: 0

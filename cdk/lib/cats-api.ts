@@ -21,24 +21,19 @@ export class CatsApi extends cdk.Construct {
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
-        const api = new RestApi(this, "CatsApiGraphQL", {
-            restApiName: "cats-api-graphql",
+        const api = new RestApi(this, "GraphQL", {
             defaultCorsPreflightOptions: {
                 allowOrigins: Cors.ALL_ORIGINS,
                 allowMethods: Cors.ALL_METHODS // this is also the default
             }
         })
 
-        const authorizerId = new CfnAuthorizer(this, "APIGatewayAuthorizer", {
-            name: "cats-authorizer",
+        const authorizerId = new CfnAuthorizer(this, "Authorizer", {
             identitySource: "method.request.header.Authorization",
             providerArns: [auth.userPool.userPoolArn],
             restApiId: api.restApiId,
             type: AuthorizationType.COGNITO
         }).ref;
-
-        new cdk.CfnOutput(this, 'LambdaCodeBucketName', { value: source.bucketName });
-        new cdk.CfnOutput(this, 'LambdaCodeObjectKey', { value: source.objectKey });
 
         const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
 
@@ -47,6 +42,9 @@ export class CatsApi extends cdk.Construct {
             code: Code.fromBucket(sourceBucket, source.objectKey),
             handler: 'index.handler',
             description: `Function generated on: ${new Date().toISOString()}`,
+            environment: {
+                NODE_OPTIONS: "--enable-source-maps"
+            }
         });
 
         const integration = new LambdaIntegration(handler, {});
@@ -61,7 +59,7 @@ export class CatsApi extends cdk.Construct {
             authorizer: { authorizerId }
         });
 
-        const domain = new DomainName(this, 'custom-domain', {
+        const domain = new DomainName(this, 'CustomDomain', {
             domainName,
             certificate: certificate,
             endpointType: EndpointType.EDGE, // default is REGIONAL
