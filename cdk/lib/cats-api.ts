@@ -29,6 +29,7 @@ export class CatsApi extends cdk.Construct {
         })
 
         const authorizerId = new CfnAuthorizer(this, "Authorizer", {
+            name: "cats-cognito-authorizer",
             identitySource: "method.request.header.Authorization",
             providerArns: [auth.userPool.userPoolArn],
             restApiId: api.restApiId,
