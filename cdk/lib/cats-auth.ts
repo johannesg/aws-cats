@@ -3,6 +3,7 @@ import { UserPool, VerificationEmailStyle, UserPoolClient, AccountRecovery } fro
 
 export class CatsAuthentication extends cdk.Construct {
     public readonly userPool: UserPool;
+    public readonly userPoolClient: UserPoolClient;
 
     constructor(scope: cdk.Construct, id: string) {
         super(scope, id);
@@ -30,7 +31,7 @@ export class CatsAuthentication extends cdk.Construct {
             }
         });
 
-        const userPoolClient = new UserPoolClient(this, "UserPoolClient", {
+        this.userPoolClient = new UserPoolClient(this, "UserPoolClient", {
             userPool: this.userPool,
             authFlows: {
                 userPassword: true,
@@ -43,6 +44,6 @@ export class CatsAuthentication extends cdk.Construct {
         // new cdk.CfnOutput(this, "CognitoSigninUrl", { value: signInUrl });
 
         new cdk.CfnOutput(this, "UserPoolId", { value: this.userPool.userPoolId });
-        new cdk.CfnOutput(this, "UserPoolClientId", { value: userPoolClient.userPoolClientId });
+        new cdk.CfnOutput(this, "UserPoolClientId", { value: this.userPoolClient.userPoolClientId });
     }
 }
