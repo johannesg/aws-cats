@@ -60,19 +60,19 @@ export class CatsApi extends cdk.Construct {
             authorizer: { authorizerId }
         });
 
-        // const domain = new DomainName(this, 'CustomDomain', {
-        //     domainName,
-        //     certificate: certificate,
-        //     endpointType: EndpointType.EDGE, // default is REGIONAL
-        //     securityPolicy: SecurityPolicy.TLS_1_2
-        // });
+        const domain = new DomainName(this, 'CustomDomain', {
+            domainName,
+            certificate: certificate,
+            endpointType: EndpointType.EDGE, // default is REGIONAL
+            securityPolicy: SecurityPolicy.TLS_1_2
+        });
 
-        // domain.addBasePathMapping(api, { basePath: 'graphql' });
+        domain.addBasePathMapping(api, { basePath: 'graphql' });
 
-        // new ARecord(this, 'CustomDomainAliasRecord', {
-        //     recordName: domainName,
-        //     zone,
-        //     target: RecordTarget.fromAlias(new targets.ApiGatewayDomain(domain))
-        // });
+        new ARecord(this, 'CustomDomainAliasRecord', {
+            recordName: domainName,
+            zone,
+            target: RecordTarget.fromAlias(new targets.ApiGatewayDomain(domain))
+        });
     }
 }
