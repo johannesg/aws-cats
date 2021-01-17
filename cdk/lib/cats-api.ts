@@ -74,10 +74,10 @@ export class CatsApi extends cdk.Construct {
         // domain.addBasePathMapping(api, { basePath: 'graphql' });
 
         // HttpApi
-        // const domain = new gw2.DomainName(this, 'DomainName', {
-        //     domainName,
-        //     certificate
-        //   });
+        const domain = new gw2.DomainName(this, 'DomainName', {
+            domainName,
+            certificate
+          });
 
         const httpApi = new gw2.HttpApi(this, 'HttpProxyApi', {
             corsPreflight: {
@@ -86,9 +86,9 @@ export class CatsApi extends cdk.Construct {
                 allowOrigins: ['*'],
                 maxAge: Duration.days(10),
             },
-            // defaultDomainMapping: {
-            //     domainName: domain,
-            //   },
+            defaultDomainMapping: {
+                domainName: domain,
+              },
         });
 
         new CfnOutput(this, "HttpApiEndpoint", { value: httpApi.apiEndpoint });
@@ -110,11 +110,11 @@ export class CatsApi extends cdk.Construct {
             routeCfn.authorizationType = "JWT"; // THIS HAS TO MATCH THE AUTHORIZER TYPE ABOVE
         });
 
-        // new ARecord(this, 'CustomDomainAliasRecord', {
-        //     recordName: domainName,
-        //     zone,
-        //     target: RecordTarget.fromAlias(new targets.ApiGatewayv2Domain(domain))
-        // });
+        new ARecord(this, 'DomainAliasRecord', {
+            recordName: domainName,
+            zone,
+            target: RecordTarget.fromAlias(new targets.ApiGatewayv2Domain(domain))
+        });
     }
 
     private addAuthorizer(
