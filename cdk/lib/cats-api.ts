@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { RestApi, LambdaIntegration, CfnAuthorizer, AuthorizationType, DomainName, SecurityPolicy, EndpointType, Cors } from '@aws-cdk/aws-apigateway';
+// import { RestApi, LambdaIntegration, CfnAuthorizer, AuthorizationType, DomainName, SecurityPolicy, EndpointType, Cors } from '@aws-cdk/aws-apigateway';
 import * as gw2 from '@aws-cdk/aws-apigatewayv2';
 import * as gw2i from '@aws-cdk/aws-apigatewayv2-integrations';
 import { CatsAuthentication } from './cats-auth';
@@ -25,20 +25,6 @@ export class CatsApi extends cdk.Construct {
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
-        const api = new RestApi(this, "GraphQL", {
-            defaultCorsPreflightOptions: {
-                allowOrigins: Cors.ALL_ORIGINS,
-                allowMethods: Cors.ALL_METHODS // this is also the default
-            }
-        })
-
-        const authorizerId = new CfnAuthorizer(this, "Authorizer", {
-            name: "cats-api-cognito-authorizer",
-            identitySource: "method.request.header.Authorization",
-            providerArns: [auth.userPool.userPoolArn],
-            restApiId: api.restApiId,
-            type: AuthorizationType.COGNITO
-        }).ref;
 
         const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
 
@@ -52,38 +38,46 @@ export class CatsApi extends cdk.Construct {
             }
         });
 
-        const integration = new LambdaIntegration(handler, {});
+        // const integration = new LambdaIntegration(handler, {});
 
-        const get = api.root.addMethod("GET", integration, {
-            authorizationType: AuthorizationType.COGNITO,
-            authorizer: { authorizerId }
-        });
+        // const api = new RestApi(this, "GraphQL", {
+        //     defaultCorsPreflightOptions: {
+        //         allowOrigins: Cors.ALL_ORIGINS,
+        //         allowMethods: Cors.ALL_METHODS // this is also the default
+        //     }
+        // })
 
-        const post = api.root.addMethod("POST", integration, {
-            authorizationType: AuthorizationType.COGNITO,
-            authorizer: { authorizerId }
-        });
+        // const authorizerId = new CfnAuthorizer(this, "Authorizer", {
+        //     name: "cats-api-cognito-authorizer",
+        //     identitySource: "method.request.header.Authorization",
+        //     providerArns: [auth.userPool.userPoolArn],
+        //     restApiId: api.restApiId,
+        //     type: AuthorizationType.COGNITO
+        // }).ref;
+        // const get = api.root.addMethod("GET", integration, {
+        //     authorizationType: AuthorizationType.COGNITO,
+        //     authorizer: { authorizerId }
+        // });
 
-        const domain = new DomainName(this, 'CustomDomain', {
-            domainName,
-            certificate: certificate,
-            endpointType: EndpointType.EDGE, // default is REGIONAL
-            securityPolicy: SecurityPolicy.TLS_1_2
-        });
+        // const post = api.root.addMethod("POST", integration, {
+        //     authorizationType: AuthorizationType.COGNITO,
+        //     authorizer: { authorizerId }
+        // });
 
-        domain.addBasePathMapping(api, { basePath: 'graphql' });
+        // const domain = new DomainName(this, 'CustomDomain', {
+        //     domainName,
+        //     certificate: certificate,
+        //     endpointType: EndpointType.EDGE, // default is REGIONAL
+        //     securityPolicy: SecurityPolicy.TLS_1_2
+        // });
 
-        new ARecord(this, 'CustomDomainAliasRecord', {
-            recordName: domainName,
-            zone,
-            target: RecordTarget.fromAlias(new targets.ApiGatewayDomain(domain))
-        });
+        // domain.addBasePathMapping(api, { basePath: 'graphql' });
 
         // HttpApi
-        // const dn = new gw2.DomainName(this, 'DomainName', {
-        //     domainName,
-        //     certificate
-        //   });
+        const domain = new gw2.DomainName(this, 'DomainName', {
+            domainName,
+            certificate
+          });
 
         const httpApi = new gw2.HttpApi(this, 'HttpProxyApi', {
             corsPreflight: {
@@ -92,9 +86,9 @@ export class CatsApi extends cdk.Construct {
                 allowOrigins: ['*'],
                 maxAge: Duration.days(10),
             },
-            // defaultDomainMapping: {
-            //     domainName: dn,
-            //   },
+            defaultDomainMapping: {
+                domainName: domain,
+              },
         });
 
         new CfnOutput(this, "HttpApiEndpoint", { value: httpApi.apiEndpoint });
@@ -109,12 +103,18 @@ export class CatsApi extends cdk.Construct {
             })
         });
 
+        // https://dev.to/martzcodes/token-authorizers-with-apigatewayv2-tricks-apigwv1-doesn-t-want-you-to-know-41jn
         routes.forEach((route) => {
             const routeCfn = route.node.defaultChild as gw2.CfnRoute;
             routeCfn.authorizerId = authorizer2.ref;
             routeCfn.authorizationType = "JWT"; // THIS HAS TO MATCH THE AUTHORIZER TYPE ABOVE
         });
 
+        new ARecord(this, 'CustomDomainAliasRecord', {
+            recordName: domainName,
+            zone,
+            target: RecordTarget.fromAlias(new targets.ApiGatewayv2Domain(domain))
+        });
     }
 
     private addAuthorizer(
