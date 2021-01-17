@@ -98,14 +98,23 @@ export class CatsApi extends cdk.Construct {
         });
 
         new CfnOutput(this, "HttpApiEndpoint", { value: httpApi.apiEndpoint });
+        const authorizer2 = this.addAuthorizer(this, httpApi, auth.userPool, auth.userPoolClient)
 
-        httpApi.addRoutes({
+        const routes = httpApi.addRoutes({
             path: "/graphql",
-            methods: [gw2.HttpMethod.GET, gw2.HttpMethod.HEAD, gw2.HttpMethod.OPTIONS, gw2.HttpMethod.POST],
-            integration: new gw2i.LambdaProxyIntegration({ handler })
+            methods: [gw2.HttpMethod.GET, gw2.HttpMethod.POST],
+            integration: new gw2i.LambdaProxyIntegration({
+                handler,
+                payloadFormatVersion: gw2.PayloadFormatVersion.VERSION_1_0
+            })
         });
 
-        this.addAuthorizer(this, httpApi, auth.userPool, auth.userPoolClient)
+        routes.forEach((route) => {
+            const routeCfn = route.node.defaultChild as gw2.CfnRoute;
+            routeCfn.authorizerId = authorizer2.ref;
+            routeCfn.authorizationType = "JWT"; // THIS HAS TO MATCH THE AUTHORIZER TYPE ABOVE
+        });
+
     }
 
     private addAuthorizer(
