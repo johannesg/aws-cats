@@ -1,11 +1,15 @@
-schema: ./schema.ts
+schema: ../schema.graphql
 
 generates:
+  ./schema.graphql:
+    plugins:
+      - schema-ast
+
   types/gen-types.ts:
     config: 
       # defaultMapper: any
       showUnusedMappers: true
-      contextType: ./#Context
+      contextType: ./#ContextWithDataSources
       useIndexSignature: true
     plugins: 
       - typescript

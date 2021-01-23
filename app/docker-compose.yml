@@ -18,17 +18,32 @@ services:
       DOCKER_LAMBDA_WATCH: 1
       DOCKER_LAMBDA_STAY_OPEN: 1
       NODE_OPTIONS: --inspect=0.0.0.0:9229 --enable-source-maps
+      DYNAMODB_ENDPOINT: "http://dynamodb:8000"
+      DYNAMODB_TABLENAME: Cats
+      AWS_ACCESS_KEY_ID: DUMMYIDEXAMPLE
+      AWS_SECRET_ACCESS_KEY: DUMMYEXAMPLEKEY
 
       #
       # NODE_TLS_REJECT_UNAUTHORIZED: 0
       # JWT_TOKEN_SECRET: "7ca1edd2ea6a0940144ad2d1ee884943c3a48a422419b87a7c11235d229d29e1ab24955dba2f0859a1ee6ae8a16e926899c01e9b16598e9f598d9a362deb3755"
       # COSMOS_CONNECTION_STRING: AccountEndpoint=https://host.docker.internal:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
       # COSMOS_DATABASE: Apollo
-      # AWS_ACCESS_KEY_ID: graphql
-      # AWS_SECRET_ACCESS_KEY: abcd
     command:
       - index.handler
   dynamodb:
     image: amazon/dynamodb-local
-    # ports:
-    #   - "8000:8000"
+    ports:
+      - "8800:8000"
+    volumes:
+      # - dynamodb:/home/dynamodblocal/data/
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    command:
+      - -jar
+      - DynamoDBLocal.jar
+      - -sharedDb
+      - -optimizeDbBeforeStartup
+      - -dbPath
+      - ./data/
+    working_dir: /home/dynamodblocal
+volumes:
+  dynamodb:

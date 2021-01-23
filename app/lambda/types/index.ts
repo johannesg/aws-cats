@@ -1,3 +1,4 @@
+import { DynamoDBDataSource } from '../datasources/dynamodb';
 import { User, Cat } from './gen-types';
 
 export interface ICatsAPI {
@@ -6,6 +7,7 @@ export interface ICatsAPI {
 
 export interface DataSources {
     CatsAPI: ICatsAPI
+    DynamoDB: DynamoDBDataSource
 }
 
 export type UserExt = User & {
@@ -22,8 +24,11 @@ export type UserExt = User & {
     iat?: string
 }
 
-export interface Context {
+export type Context = {
     user: UserExt
+}
+
+export type ContextWithDataSources = Context & {
     dataSources: DataSources
 }
 

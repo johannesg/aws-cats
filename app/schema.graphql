@@ -10,12 +10,20 @@ type Query {
 }
 
 type Mutation {
+    updateUser(params: UpdateUserParams!) : User
     setFavourite(catId: ID!): Cat
+}
+
+input UpdateUserParams {
+    firstName: String!
+    lastName: String!
 }
 
 type User {
     id: ID!
     email: String!
+    firstName: String
+    lastName: String
 }
 
 type Cat {

@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { Context } from './';
+import { ContextWithDataSources } from './';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
@@ -18,13 +18,36 @@ export type Query = {
   __typename?: 'Query';
   cats?: Maybe<Cats>;
   me?: Maybe<User>;
-  hello: Scalars['String'];
+  hello?: Maybe<Scalars['String']>;
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  updateUser?: Maybe<User>;
+  setFavourite?: Maybe<Cat>;
+};
+
+
+export type MutationUpdateUserArgs = {
+  params: UpdateUserParams;
+};
+
+
+export type MutationSetFavouriteArgs = {
+  catId: Scalars['ID'];
+};
+
+export type UpdateUserParams = {
+  firstName: Scalars['String'];
+  lastName: Scalars['String'];
 };
 
 export type User = {
   __typename?: 'User';
   id: Scalars['ID'];
   email: Scalars['String'];
+  firstName?: Maybe<Scalars['String']>;
+  lastName?: Maybe<Scalars['String']>;
 };
 
 export type Cat = {
@@ -126,8 +149,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
-  User: ResolverTypeWrapper<User>;
+  Mutation: ResolverTypeWrapper<{}>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
+  UpdateUserParams: UpdateUserParams;
+  User: ResolverTypeWrapper<User>;
   Cat: ResolverTypeWrapper<Cat>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Cats: ResolverTypeWrapper<Cats>;
@@ -138,27 +163,36 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Query: {};
   String: Scalars['String'];
-  User: User;
+  Mutation: {};
   ID: Scalars['ID'];
+  UpdateUserParams: UpdateUserParams;
+  User: User;
   Cat: Cat;
   Int: Scalars['Int'];
   Cats: Cats;
   Boolean: Scalars['Boolean'];
 }>;
 
-export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+export type QueryResolvers<ContextType = ContextWithDataSources, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   cats?: Resolver<Maybe<ResolversTypes['Cats']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  hello?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
-export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+export type MutationResolvers<ContextType = ContextWithDataSources, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  updateUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'params'>>;
+  setFavourite?: Resolver<Maybe<ResolversTypes['Cat']>, ParentType, ContextType, RequireFields<MutationSetFavouriteArgs, 'catId'>>;
+}>;
+
+export type UserResolvers<ContextType = ContextWithDataSources, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type CatResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Cat'] = ResolversParentTypes['Cat']> = ResolversObject<{
+export type CatResolvers<ContextType = ContextWithDataSources, ParentType extends ResolversParentTypes['Cat'] = ResolversParentTypes['Cat']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   height?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -166,13 +200,14 @@ export type CatResolvers<ContextType = Context, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type CatsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Cats'] = ResolversParentTypes['Cats']> = ResolversObject<{
+export type CatsResolvers<ContextType = ContextWithDataSources, ParentType extends ResolversParentTypes['Cats'] = ResolversParentTypes['Cats']> = ResolversObject<{
   random?: Resolver<Maybe<Array<Maybe<ResolversTypes['Cat']>>>, ParentType, ContextType, RequireFields<CatsRandomArgs, 'pageSize'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Resolvers<ContextType = Context> = ResolversObject<{
+export type Resolvers<ContextType = ContextWithDataSources> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
+  Mutation?: MutationResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   Cat?: CatResolvers<ContextType>;
   Cats?: CatsResolvers<ContextType>;
@@ -183,4 +218,4 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
  * @deprecated
  * Use "Resolvers" root object instead. If you wish to get "IResolvers", add "typesPrefix: I" to your config.
  */
-export type IResolvers<ContextType = Context> = Resolvers<ContextType>;
+export type IResolvers<ContextType = ContextWithDataSources> = Resolvers<ContextType>;

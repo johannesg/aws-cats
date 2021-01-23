@@ -1,9 +1,10 @@
-
-import { ApolloServer } from "apollo-server-lambda"
+import 'graphql-import-node';
+import { ApolloError, ApolloServer } from "apollo-server-lambda"
 
 import { CatsAPI } from './datasources/cats'
+import { DynamoDBDataSource } from './datasources/dynamodb'
 
-import typeDefs from './schema'
+import typeDefs from './schema.graphql'
 import { resolvers } from './resolvers'
 
 import { UserExt } from './types';
@@ -13,6 +14,7 @@ import { UserExt } from './types';
 console.log(`Starting up`);
 
 function getFakeUser(req: any) : UserExt {
+    // throw new ApolloError("testing");
     return { 
         groups: ["Admin"],
         id: "kalle", 
@@ -50,7 +52,8 @@ const server = new ApolloServer({
     dataSources: () => {
         return {
             // UserAPI: new UserAPI(containers.users),
-            CatsAPI: new CatsAPI()
+            CatsAPI: new CatsAPI(),
+            DynamoDB: new DynamoDBDataSource()
         }
     },
     context: (ctx : ApolloContext) => {

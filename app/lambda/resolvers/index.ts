@@ -1,12 +1,11 @@
-import { Context, Resolvers } from '../types';
-import { IResolvers } from 'graphql-tools';
+import { Resolvers } from '../types';
 import { Cats } from './cats'
 
 // import { UserOps } from './user'
 
 export const resolvers : Resolvers = {
     Query: {
-        me: (_, __, { user }) => user,
+        me: async (_, __, { user, dataSources: { DynamoDB} }) => await DynamoDB.getUser() ?? user,
         cats: () => ({}),
         hello: () => "Hello V3"
     },
@@ -15,7 +14,11 @@ export const resolvers : Resolvers = {
 
     // UserOps,
 
-    // Mutation: {
-    //     user: () => ({})
-    // }
+    Mutation: {
+        updateUser: async (_, { params }, { user, dataSources: { DynamoDB } }) => {
+            const { firstName, lastName } = params;
+            DynamoDB.putUser(firstName, lastName);
+            return await DynamoDB.getUser() ?? user;
+        }
+    }
 };
