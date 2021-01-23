@@ -39,10 +39,10 @@ export class CatsStack extends cdk.Stack {
       auth,
       zone,
       certificate: certificateRegional,
-      source: this.lambdaCode.location
+      source: this.lambdaCode.location,
+      table
     });
 
-    table.grantReadWriteData(api.handler);
 
     const site = new CatsApp(this, "AppSite", {
       domainName: "cats.aws.jogus.io",

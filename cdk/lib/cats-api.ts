@@ -9,6 +9,7 @@ import * as targets from '@aws-cdk/aws-route53-targets';
 import * as s3 from '@aws-cdk/aws-s3';
 import { IUserPool, IUserPoolClient } from '@aws-cdk/aws-cognito';
 import { CfnOutput, Duration, Stack } from '@aws-cdk/core';
+import { ITable } from '@aws-cdk/aws-dynamodb';
 
 export interface CatsApiProps {
     domainName: string
@@ -16,12 +17,13 @@ export interface CatsApiProps {
     zone: IHostedZone
     certificate: ICertificate
     source: s3.Location
+    table: ITable
 }
 
 export class CatsApi extends cdk.Construct {
     public readonly handler : Function;
 
-    constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate, source }: CatsApiProps) {
+    constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate, source, table }: CatsApiProps) {
         super(scope, id);
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
@@ -35,9 +37,12 @@ export class CatsApi extends cdk.Construct {
             handler: 'index.handler',
             description: `Function generated on: ${new Date().toISOString()}`,
             environment: {
-                NODE_OPTIONS: "--enable-source-maps"
+                NODE_OPTIONS: "--enable-source-maps",
+                DYNAMODB_TABLENAME: table.tableName
             }
         });
+
+        table.grantReadWriteData(this.handler);
 
         // HttpApi
         const domain = new gw2.DomainName(this, 'DomainName', {

@@ -12,13 +12,13 @@ export class DynamoDBDataSource extends DataSource<Context> {
     initialize({ context, cache }: DataSourceConfig<Context>) {
         const endpoint = process.env.DYNAMODB_ENDPOINT;
 
+        console.log(`DynamoDB endpoint: ${endpoint ?? "remote"}`);
+        console.log(`DynamoDB table: ${this.tableName}`);
+
         this.context = context;
         this.client = new DynamoDB({
             endpoint
         });
-
-        console.log(`DynamoDB endpoint: ${endpoint ?? "remote"}`);
-        console.log(`DynamoDB table: ${this.tableName}`);
     }
 
     createKey(entity: string, id: string) {
