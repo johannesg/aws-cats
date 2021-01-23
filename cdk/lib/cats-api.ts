@@ -1,5 +1,4 @@
 import * as cdk from '@aws-cdk/core';
-// import { RestApi, LambdaIntegration, CfnAuthorizer, AuthorizationType, DomainName, SecurityPolicy, EndpointType, Cors } from '@aws-cdk/aws-apigateway';
 import * as gw2 from '@aws-cdk/aws-apigatewayv2';
 import * as gw2i from '@aws-cdk/aws-apigatewayv2-integrations';
 import { CatsAuthentication } from './cats-auth';
@@ -20,6 +19,8 @@ export interface CatsApiProps {
 }
 
 export class CatsApi extends cdk.Construct {
+    public readonly handler : Function;
+
     constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate, source }: CatsApiProps) {
         super(scope, id);
 
@@ -28,7 +29,7 @@ export class CatsApi extends cdk.Construct {
 
         const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
 
-        const handler = new Function(this, 'ApolloHandler', {
+        this.handler = new Function(this, 'ApolloHandler', {
             runtime: Runtime.NODEJS_12_X,
             code: Code.fromBucket(sourceBucket, source.objectKey),
             handler: 'index.handler',
@@ -37,41 +38,6 @@ export class CatsApi extends cdk.Construct {
                 NODE_OPTIONS: "--enable-source-maps"
             }
         });
-
-        // const integration = new LambdaIntegration(handler, {});
-
-        // const api = new RestApi(this, "GraphQL", {
-        //     defaultCorsPreflightOptions: {
-        //         allowOrigins: Cors.ALL_ORIGINS,
-        //         allowMethods: Cors.ALL_METHODS // this is also the default
-        //     }
-        // })
-
-        // const authorizerId = new CfnAuthorizer(this, "Authorizer", {
-        //     name: "cats-api-cognito-authorizer",
-        //     identitySource: "method.request.header.Authorization",
-        //     providerArns: [auth.userPool.userPoolArn],
-        //     restApiId: api.restApiId,
-        //     type: AuthorizationType.COGNITO
-        // }).ref;
-        // const get = api.root.addMethod("GET", integration, {
-        //     authorizationType: AuthorizationType.COGNITO,
-        //     authorizer: { authorizerId }
-        // });
-
-        // const post = api.root.addMethod("POST", integration, {
-        //     authorizationType: AuthorizationType.COGNITO,
-        //     authorizer: { authorizerId }
-        // });
-
-        // const domain = new DomainName(this, 'CustomDomain', {
-        //     domainName,
-        //     certificate: certificate,
-        //     endpointType: EndpointType.EDGE, // default is REGIONAL
-        //     securityPolicy: SecurityPolicy.TLS_1_2
-        // });
-
-        // domain.addBasePathMapping(api, { basePath: 'graphql' });
 
         // HttpApi
         const domain = new gw2.DomainName(this, 'DomainName', {
@@ -98,7 +64,7 @@ export class CatsApi extends cdk.Construct {
             path: "/graphql",
             methods: [gw2.HttpMethod.GET, gw2.HttpMethod.POST],
             integration: new gw2i.LambdaProxyIntegration({
-                handler,
+                handler: this.handler,
                 payloadFormatVersion: gw2.PayloadFormatVersion.VERSION_1_0
             })
         });

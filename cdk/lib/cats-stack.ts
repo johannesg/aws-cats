@@ -5,6 +5,8 @@ import { CatsAuthentication } from './cats-auth';
 import { CatsApi } from './cats-api';
 import { CatsApp } from './cats-app';
 import { S3ObjectParameter } from './utils';
+import { CatsTableStack } from './cats-table-stack';
+import { Table } from '@aws-cdk/aws-dynamodb';
 
 export interface CatsStackProps extends cdk.StackProps {
 }
@@ -28,6 +30,8 @@ export class CatsStack extends cdk.Stack {
 
     const zone = HostedZone.fromLookup(this, 'Zone', { domainName: "aws.jogus.io" });
 
+    const table = Table.fromTableName(this, "CatsTable", "CatsTableStack-Cats69A4F22A-S59VSEAFBWLL");
+
     const auth = new CatsAuthentication(this, "Auth");
 
     const api = new CatsApi(this, "ApiApollo", {
@@ -37,6 +41,8 @@ export class CatsStack extends cdk.Stack {
       certificate: certificateRegional,
       source: this.lambdaCode.location
     });
+
+    table.grantReadWriteData(api.handler);
 
     const site = new CatsApp(this, "AppSite", {
       domainName: "cats.aws.jogus.io",
