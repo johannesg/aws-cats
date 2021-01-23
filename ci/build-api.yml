@@ -12,3 +12,4 @@ artifacts:
   files: 
     - index.js
     - index.js.map
+    - schema.graphql

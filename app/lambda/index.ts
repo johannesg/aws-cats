@@ -1,13 +1,12 @@
-import 'graphql-import-node';
 import { ApolloError, ApolloServer } from "apollo-server-lambda"
 
 import { CatsAPI } from './datasources/cats'
 import { DynamoDBDataSource } from './datasources/dynamodb'
 
-import typeDefs from './schema.graphql'
 import { resolvers } from './resolvers'
 
 import { UserExt } from './types';
+import { readFileSync } from'fs';
 
 // require("./datasources/dynamodb");
 
@@ -45,6 +44,8 @@ interface ApolloContext {
     context: any
     event: any
 }
+
+const typeDefs = readFileSync('./schema.graphql', 'utf-8');
 
 const server = new ApolloServer({
     typeDefs,
