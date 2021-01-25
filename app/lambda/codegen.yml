@@ -11,6 +11,7 @@ generates:
       showUnusedMappers: true
       contextType: ./#ContextWithDataSources
       useIndexSignature: true
+      # avoidOptionals: true
     plugins: 
       - typescript
       - typescript-resolvers
