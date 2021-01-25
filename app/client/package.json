@@ -23,27 +23,27 @@
     "@graphql-codegen/typescript-operations": "latest",
     "@graphql-codegen/typescript-react-apollo": "latest",
     "@graphql-codegen/typescript-resolvers": "latest",
-    "@types/node": "^14.14.20",
+    "@types/node": "^14.14.22",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "@apollo/client": "^3.3.6",
+    "@apollo/client": "^3.3.7",
     "@aws-amplify/auth": "^3.4.17",
     "@aws-amplify/ui-react": "^0.2.34",
-    "@material-ui/core": "^4.11.2",
+    "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
-    "@material-ui/styles": "^4.11.2",
+    "@material-ui/styles": "^4.11.3",
     "@types/react-helmet": "^6.1.0",
-    "gatsby": "^2.30.1",
+    "gatsby": "^2.31.1",
     "gatsby-plugin-material-ui": "^2.1.10",
-    "gatsby-plugin-react-helmet": "^3.8.0",
-    "gatsby-source-filesystem": "^2.9.0",
+    "gatsby-plugin-react-helmet": "^3.9.0",
+    "gatsby-source-filesystem": "^2.10.0",
     "react": "^16.14.0",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0",
-    "react-hook-form": "^6.14.1",
-    "recharts": "^2.0.0"
+    "react-hook-form": "^6.14.2",
+    "recharts": "^2.0.3"
   }
 }
