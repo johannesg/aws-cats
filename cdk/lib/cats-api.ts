@@ -53,7 +53,7 @@ export class CatsApi extends cdk.Construct {
         const httpApi = new gw2.HttpApi(this, 'HttpProxyApi', {
             corsPreflight: {
                 allowHeaders: ['Authorization','Content-Type'],
-                allowMethods: [gw2.HttpMethod.GET, gw2.HttpMethod.HEAD, gw2.HttpMethod.OPTIONS, gw2.HttpMethod.POST],
+                allowMethods: [gw2.CorsHttpMethod.GET, gw2.CorsHttpMethod.HEAD, gw2.CorsHttpMethod.OPTIONS, gw2.CorsHttpMethod.POST],
                 allowOrigins: ['*'],
                 maxAge: Duration.days(10),
             },

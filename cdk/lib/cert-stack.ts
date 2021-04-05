@@ -3,6 +3,7 @@ import { HostedZone } from '@aws-cdk/aws-route53';
 import { DnsValidatedCertificate, ICertificate } from '@aws-cdk/aws-certificatemanager';
 
 export class CertStack extends Stack {
+    public readonly certificateEdgeOld: ICertificate;
     public readonly certificateEdge: ICertificate;
     public readonly certificateRegional: ICertificate;
 
@@ -18,10 +19,17 @@ export class CertStack extends Stack {
         const hostedZone = HostedZone.fromLookup(this, 'Zone', { domainName: zoneName });
 
         // TLS certificate
-        this.certificateEdge = new DnsValidatedCertificate(this, 'SiteCertificate', {
+        this.certificateEdgeOld = new DnsValidatedCertificate(this, 'SiteCertificate', {
             domainName,
             hostedZone,
             subjectAlternativeNames,
+            region: 'us-east-1', // Cloudfront only checks this region for certificates.
+        });
+
+        // TLS certificate
+        this.certificateEdge = new DnsValidatedCertificate(this, 'SiteCertificate2', {
+            domainName: "*.aws.jogus.io",
+            hostedZone,
             region: 'us-east-1', // Cloudfront only checks this region for certificates.
         });
 
@@ -30,6 +38,7 @@ export class CertStack extends Stack {
             hostedZone
         });
 
+        new CfnOutput(this, 'CertificateEdgeOld', { value: this.certificateEdgeOld.certificateArn });
         new CfnOutput(this, 'CertificateEdge', { value: this.certificateEdge.certificateArn });
         new CfnOutput(this, 'CertificateRegional', { value: this.certificateRegional.certificateArn });
     }
