@@ -10,7 +10,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { login } from '../../auth';
 import { makeStyles } from '@material-ui/styles';
 import { Checkbox, FormControlLabel, Grid, Link, Theme, Typography } from '@material-ui/core';
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 
 const useStyles = makeStyles<Theme>((theme) => ({
@@ -45,7 +45,7 @@ export default function NotLoggedIn() {
         login(username, password);
     }
 
-    const { register, handleSubmit, watch, errors } = useForm<InputCredentials>();
+    const { register, handleSubmit, control } = useForm<InputCredentials>();
 
     return (
         <div>
@@ -53,33 +53,48 @@ export default function NotLoggedIn() {
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title">
                     Sign in
-        </DialogTitle>
+                </DialogTitle>
                 <DialogContent>
                     <form className={classes.form} onSubmit={handleSubmit(handleLogin)} >
-                        <TextField
-                            autoFocus
-                            variant="outlined"
-                            required
-                            margin="normal"
+                        <Controller
                             name="username"
-                            label="Username"
-                            fullWidth
-                            inputRef={register}
+                            control={control}
+                            defaultValue={""}
+                            render={({ field }) => <TextField
+                                autoFocus
+                                variant="outlined"
+                                required
+                                margin="normal"
+                                label="Username"
+                                fullWidth
+                                {...field}
+                            />}
                         />
-                        <TextField
-                            variant="outlined"
-                            required
-                            margin="normal"
+                        <Controller
                             name="password"
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            inputRef={register}
+                            control={control}
+                            defaultValue={""}
+                            render={({ field }) => <TextField
+                                variant="outlined"
+                                required
+                                margin="normal"
+                                label="Password"
+                                type="password"
+                                fullWidth
+                                {...field}
+                            />}
                         />
-                        <FormControlLabel
-                            control={<Checkbox name="remember" color="primary" inputRef={register} />}
-                            label="Remember me"
+
+                        <Controller
+                            name="remember" 
+                            control={control}
+                            defaultValue={false}
+                            render={({ field }) => <FormControlLabel
+                                control={<Checkbox color="primary" {...field} />}
+                                label="Remember me"
+                            />}
                         />
+
                         <Button
                             type="submit"
                             fullWidth
@@ -88,12 +103,12 @@ export default function NotLoggedIn() {
                             className={classes.submit}
                         >
                             Sign In
-          </Button>
+                        </Button>
                         <Grid container>
                             <Grid item xs>
                                 <Link href="#" variant="body2">
                                     Forgot password?
-              </Link>
+                                </Link>
                             </Grid>
                             <Grid item>
                                 <Link href="#" variant="body2">
