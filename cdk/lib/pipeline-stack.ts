@@ -45,11 +45,15 @@ export class CatsPipelineStack extends Stack {
         const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
         const appBuildOutput = new codepipeline.Artifact('AppBuildOutput');
 
-        const sourceAction = new codepipeline_actions.CodeCommitSourceAction({
-            actionName: 'CodeCommit', // Any Git-based source control
-            output: sourceOutput, // Indicates where the artifact is stored
-            repository: repo // Designates the repo to draw code from
-        })
+        const sourceAction = new codepipeline_actions.CodeStarConnectionsSourceAction({
+            actionName: 'GitHub',
+            output: sourceOutput,
+            connectionArn: "arn:aws:codestar-connections:eu-north-1:700595718361:connection/32191430-b2de-481b-b292-0c24114045da",
+            owner: 'johannesg',
+            repo: 'aws-cats',
+            branch: 'master'
+          });
+
         const lambdaBuildAction = new codepipeline_actions.CodeBuildAction({
             actionName: 'Lambda_Build',
             project: lambdaBuild,
