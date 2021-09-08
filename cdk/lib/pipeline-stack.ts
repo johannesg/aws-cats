@@ -1,5 +1,4 @@
 import { Stack, Construct, StackProps } from '@aws-cdk/core';
-import { Repository } from '@aws-cdk/aws-codecommit';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
@@ -12,11 +11,6 @@ type CatsPipelineStackProps = StackProps & {
 export class CatsPipelineStack extends Stack {
     constructor(scope: Construct, id: string, props: CatsPipelineStackProps) {
         super(scope, id, props);
-
-        // Creates a CodeCommit repository called 'WorkshopRepo'
-        const repo = new Repository(this, 'CatsRepo', {
-            repositoryName: "Cats"
-        });
 
         const cdkBuild = new codebuild.PipelineProject(this, 'CdkBuild', {
             buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-cdk.yml"),
