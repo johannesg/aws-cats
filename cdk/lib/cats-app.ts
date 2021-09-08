@@ -55,14 +55,16 @@ export class CatsApp extends Construct {
             zone
         });
 
+        new cdk.CfnOutput(this, 'AppCodeSourceBucket', { value: `Bucket: ${source.bucketName}; Key: ${source.objectKey}` });
+
         const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
         
         // Deploy site contents to S3 bucket
-        new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
-            sources: [s3deploy.Source.bucket(sourceBucket, source.objectKey)],
-            destinationBucket: siteBucket,
-            distribution,
-            distributionPaths: ['/*'],
-        });
+        // new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
+        //     sources: [s3deploy.Source.bucket(sourceBucket, source.objectKey)],
+        //     destinationBucket: siteBucket,
+        //     distribution,
+        //     distributionPaths: ['/*'],
+        // });
     }
 }
