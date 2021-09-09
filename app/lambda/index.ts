@@ -22,8 +22,8 @@ function getFakeUser(req: any) : UserExt {
 }
 
 function getUserFromClaims(claims: Record<string, string>) : UserExt {
-    console.log(claims);
-    const groups = claims['cognito:groups'].split(',');
+    // console.log(claims);
+    const groups = (claims['cognito:groups'] ?? "").split(',');
     return {
         groups,
         email: claims.email,
