@@ -39,7 +39,9 @@ export class CatsApi extends cdk.Construct {
             environment: {
                 NODE_OPTIONS: "--enable-source-maps",
                 DYNAMODB_TABLENAME: table.tableName
-            }
+            },
+            timeout: Duration.seconds(30),
+            memorySize: 512
         });
 
         table.grantReadWriteData(this.handler);
