@@ -1,0 +1,33 @@
+type Cat {
+  height: Int
+  id: ID!
+  url: String!
+  width: Int
+}
+
+type Cats {
+  random(pageSize: Int = 10): [Cat]
+}
+
+type Mutation {
+  setFavourite(catId: ID!): Cat
+  updateUser(params: UpdateUserParams!): User
+}
+
+type Query {
+  cats: Cats
+  hello: String
+  me: User
+}
+
+input UpdateUserParams {
+  firstName: String!
+  lastName: String!
+}
+
+type User {
+  email: String!
+  firstName: String
+  id: ID!
+  lastName: String
+}

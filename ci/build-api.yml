@@ -2,13 +2,16 @@ version: 0.2
 phases:
   install:
     commands:
+      - node --version
+      - npm --version
+      - npm install -g npm
       - cd app/lambda
       - npm ci
   build:
     commands:
-      - npm run esbuild
+      - npm run build
 artifacts:
-  base-directory: app/lambda
+  base-directory: app/lambda/build
   files: 
     - index.js
     - index.js.map

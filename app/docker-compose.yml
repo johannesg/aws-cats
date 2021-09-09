@@ -11,7 +11,7 @@ services:
   lambda:
     image: lambci/lambda:nodejs12.x
     volumes:
-      - ./lambda:/var/task
+      - ./lambda/build:/var/task
     ports:
       - '9229:9229'
     environment:
@@ -35,8 +35,8 @@ services:
     ports:
       - "8800:8000"
     volumes:
-      # - dynamodb:/home/dynamodblocal/data/
-      - "./docker/dynamodb:/home/dynamodblocal/data"
+      - dynamodb:/home/dynamodblocal/data/
+      # - "./docker/dynamodb:/home/dynamodblocal/data"
     command:
       - -jar
       - DynamoDBLocal.jar
@@ -45,5 +45,6 @@ services:
       - -dbPath
       - ./data/
     working_dir: /home/dynamodblocal
+    user: root
 volumes:
   dynamodb:
