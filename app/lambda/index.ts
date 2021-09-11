@@ -1,27 +1,17 @@
 import { ApolloError, ApolloServer } from "apollo-server-lambda"
 
-import { CatsAPI } from './datasources/cats'
-import { DynamoDBDataSource } from './datasources/dynamodb'
-
-import { resolvers } from './resolvers'
-
 import { UserExt } from './types';
-import { readFileSync } from'fs';
+
+import { ApolloContext, createConfig } from './config';
 
 // require("./datasources/dynamodb");
 
 console.log(`Starting up`);
 
-function getFakeUser(req: any) : UserExt {
-    // throw new ApolloError("testing");
-    return { 
-        groups: ["Admin"],
-        id: "kalle", 
-        email: "olle"
-    };
-}
-
-function getUserFromClaims(claims: Record<string, string>) : UserExt {
+function getUserFromClaims(ctx: ApolloContext): UserExt {
+    const { event } = ctx;
+    // console.log(ctx);
+    const claims = event.requestContext?.authorizer?.claims ?? {};
     // console.log(claims);
     const groups = (claims['cognito:groups'] ?? "").split(',');
     return {
@@ -41,44 +31,7 @@ function getUserFromClaims(claims: Record<string, string>) : UserExt {
     }
 }
 
-interface ApolloContext {
-    context: any
-    event: any
-}
-
-const typeDefs = readFileSync('./schema.graphql', 'utf-8');
-
-const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    dataSources: () => {
-        return {
-            // UserAPI: new UserAPI(containers.users),
-            CatsAPI: new CatsAPI(),
-            DynamoDB: new DynamoDBDataSource()
-        }
-    },
-    context: (ctx : ApolloContext) => {
-        const { event} = ctx;
-        // console.log(ctx);
-        const claims = event.requestContext?.authorizer?.claims;
-        const user = claims !== null && claims !== undefined 
-            ? getUserFromClaims(claims)
-            : getFakeUser(event);
-
-        return {
-            user
-        };
-    },
-    plugins: [
-        {
-            async serverWillStart() {
-                // containers = await initCosmos();
-            }
-        }
-    ]
-
-});
+const server = new ApolloServer(createConfig({}, getUserFromClaims));
 
 console.log(`Init complete. Node version: ${process.version}`);
 
