@@ -14,11 +14,11 @@ export interface CatsAppProps {
     domainName: string
     zone: route53.IHostedZone
     certificate: ICertificate
-    source: s3.Location
+    // source: s3.Location
 }
 
 export class CatsApp extends Construct {
-    constructor(parent: Construct, name: string, { zone, domainName, source, certificate }: CatsAppProps) {
+    constructor(parent: Construct, name: string, { zone, domainName, certificate }: CatsAppProps) {
         super(parent, name);
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
@@ -55,13 +55,14 @@ export class CatsApp extends Construct {
             zone
         });
 
-        new cdk.CfnOutput(this, 'AppCodeSourceBucket', { value: `Bucket: ${source.bucketName}; Key: ${source.objectKey}` });
+        // new cdk.CfnOutput(this, 'AppCodeSourceBucket', { value: `Bucket: ${source.bucketName}; Key: ${source.objectKey}` });
 
-        const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
+        // const sourceBucket = s3.Bucket.fromBucketName(this, 'AppCodeBucket', source.bucketName);
         
         // Deploy site contents to S3 bucket
         new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
-            sources: [s3deploy.Source.bucket(sourceBucket, source.objectKey)],
+            // sources: [s3deploy.Source.bucket(sourceBucket, source.objectKey)],
+            sources: [s3deploy.Source.asset("out_client")],
             destinationBucket: siteBucket,
             distribution,
             distributionPaths: ['/*'],

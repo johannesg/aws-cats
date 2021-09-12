@@ -16,24 +16,25 @@ export interface CatsApiProps {
     auth: CatsAuthentication
     zone: IHostedZone
     certificate: ICertificate
-    source: s3.Location
+    // source: s3.Location
     table: ITable
 }
 
 export class CatsApi extends cdk.Construct {
     public readonly handler : Function;
 
-    constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate, source, table }: CatsApiProps) {
+    constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate,  table }: CatsApiProps) {
         super(scope, id);
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
 
-        const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
+        // const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
 
         this.handler = new Function(this, 'ApolloHandler', {
             runtime: Runtime.NODEJS_12_X,
-            code: Code.fromBucket(sourceBucket, source.objectKey),
+            // code: Code.fromBucket(sourceBucket, source.objectKey),
+            code: Code.fromAsset("../out_lambda"),
             handler: 'index.handler',
             description: `Function generated on: ${new Date().toISOString()}`,
             environment: {
