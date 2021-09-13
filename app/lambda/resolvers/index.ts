@@ -17,7 +17,7 @@ export const resolvers : Resolvers = {
     Mutation: {
         updateUser: async (_, { params }, { user, dataSources: { DynamoDB } }) => {
             const { firstName, lastName } = params;
-            DynamoDB.putUser(firstName, lastName);
+            await DynamoDB.putUser(firstName, lastName);
             return await DynamoDB.getUser() ?? user;
         }
     }
