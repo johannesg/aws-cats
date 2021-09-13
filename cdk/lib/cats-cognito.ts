@@ -1,14 +1,11 @@
 import * as cdk from '@aws-cdk/core';
 import { UserPool, VerificationEmailStyle, UserPoolClient, AccountRecovery } from '@aws-cdk/aws-cognito';
 
-export class CatsAuthentication extends cdk.Construct {
-    public readonly userPool: UserPool;
-    public readonly userPoolClient: UserPoolClient;
-
+export class CatsCognito extends cdk.Construct {
     constructor(scope: cdk.Construct, id: string) {
         super(scope, id);
 
-        this.userPool = new UserPool(this, "UserPool", {
+        const userPool = new UserPool(this, "UserPool", {
             selfSignUpEnabled: false,
             accountRecovery: AccountRecovery.EMAIL_ONLY,
             userVerification: {
@@ -25,14 +22,14 @@ export class CatsAuthentication extends cdk.Construct {
             }
         });
 
-        const domain = this.userPool.addDomain("CatsDomain", {
+        const domain = userPool.addDomain("CatsDomain", {
             cognitoDomain: {
                 domainPrefix: "jogus-cats"
             }
         });
 
-        this.userPoolClient = new UserPoolClient(this, "UserPoolClient", {
-            userPool: this.userPool,
+        const userPoolClient = new UserPoolClient(this, "UserPoolClient", {
+            userPool: userPool,
             authFlows: {
                 userPassword: true,
                 // adminUserPassword: true,
@@ -40,10 +37,10 @@ export class CatsAuthentication extends cdk.Construct {
             }
         });
 
-        new cdk.CfnOutput(this, "CognitoBaseUrl", { value: domain.baseUrl() })
-        // new cdk.CfnOutput(this, "CognitoSigninUrl", { value: signInUrl });
+        new cdk.CfnOutput(this, "UserPoolBaseUrl", { value: domain.baseUrl()})
 
-        new cdk.CfnOutput(this, "UserPoolId", { value: this.userPool.userPoolId });
-        new cdk.CfnOutput(this, "UserPoolClientId", { value: this.userPoolClient.userPoolClientId });
+        new cdk.CfnOutput(this, "UserPoolArn", { value: userPool.userPoolId, exportName: "cats-user-pool-arn" });
+        new cdk.CfnOutput(this, "UserPoolId", { value: userPool.userPoolId, exportName: "cats-user-pool-id" });
+        new cdk.CfnOutput(this, "UserPoolClientId", { value: userPoolClient.userPoolClientId, exportName: "cats-user-pool-clientid" });
     }
 }

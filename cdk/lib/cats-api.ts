@@ -1,19 +1,16 @@
 import * as cdk from '@aws-cdk/core';
 import * as gw2 from '@aws-cdk/aws-apigatewayv2';
 import * as gw2i from '@aws-cdk/aws-apigatewayv2-integrations';
-import { CatsAuthentication } from './cats-auth';
 import { Function, Runtime, Code } from '@aws-cdk/aws-lambda';
 import { IHostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
 import { ICertificate } from '@aws-cdk/aws-certificatemanager';
 import * as targets from '@aws-cdk/aws-route53-targets';
 import * as s3 from '@aws-cdk/aws-s3';
-import { IUserPool, IUserPoolClient } from '@aws-cdk/aws-cognito';
-import { CfnOutput, Duration, Stack } from '@aws-cdk/core';
+import { CfnOutput, Duration, Fn, Stack } from '@aws-cdk/core';
 import { ITable } from '@aws-cdk/aws-dynamodb';
 
 export interface CatsApiProps {
     domainName: string
-    auth: CatsAuthentication
     zone: IHostedZone
     certificate: ICertificate
     source: s3.Location
@@ -23,11 +20,13 @@ export interface CatsApiProps {
 export class CatsApi extends cdk.Construct {
     public readonly handler : Function;
 
-    constructor(scope: cdk.Construct, id: string, { domainName, auth, zone, certificate, source, table }: CatsApiProps) {
+    constructor(scope: cdk.Construct, id: string, { domainName, zone, certificate, source, table }: CatsApiProps) {
         super(scope, id);
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
+        const userPoolId = Fn.importValue("cats-user-pool-id");
+        const userPoolClientId = Fn.importValue("cats-user-pool-clientid");
 
         const sourceBucket = s3.Bucket.fromBucketName(this, 'LambdaSourceBucket', source.bucketName);
 
@@ -65,7 +64,7 @@ export class CatsApi extends cdk.Construct {
         });
 
         new CfnOutput(this, "HttpApiEndpoint", { value: httpApi.apiEndpoint });
-        const authorizer2 = this.addAuthorizer(this, httpApi, auth.userPool, auth.userPoolClient)
+        const authorizer2 = this.addAuthorizer(this, httpApi, userPoolId, userPoolClientId)
 
         const routes = httpApi.addRoutes({
             path: "/graphql",
@@ -93,8 +92,8 @@ export class CatsApi extends cdk.Construct {
     private addAuthorizer(
         stack: cdk.Construct,
         httpApi: gw2.HttpApi,
-        userPool: IUserPool,
-        userPoolClient: IUserPoolClient,
+        userPoolId: string,
+        userPoolClientId: string,
     ): gw2.CfnAuthorizer {
         const region = Stack.of(this).region;
         return new gw2.CfnAuthorizer(stack, 'CognitoAuthorizer', {
@@ -103,8 +102,8 @@ export class CatsApi extends cdk.Construct {
             apiId: httpApi.httpApiId,
             authorizerType: 'JWT',
             jwtConfiguration: {
-                audience: [userPoolClient.userPoolClientId],
-                issuer: `https://cognito-idp.${region}.amazonaws.com/${userPool.userPoolId}`,
+                audience: [userPoolClientId],
+                issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
             },
         });
     }

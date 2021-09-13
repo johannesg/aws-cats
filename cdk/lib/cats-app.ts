@@ -7,7 +7,7 @@ import * as s3deploy from '@aws-cdk/aws-s3-deployment';
 import { ICertificate } from '@aws-cdk/aws-certificatemanager';
 import * as cdk from '@aws-cdk/core';
 import * as targets from '@aws-cdk/aws-route53-targets/lib';
-import { Construct } from '@aws-cdk/core';
+import { Construct, Fn } from '@aws-cdk/core';
 import { AllowedMethods } from '@aws-cdk/aws-cloudfront';
 
 export interface CatsAppProps {
@@ -20,6 +20,7 @@ export interface CatsAppProps {
 export class CatsApp extends Construct {
     constructor(parent: Construct, name: string, { zone, domainName, source, certificate }: CatsAppProps) {
         super(parent, name);
+
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
 
