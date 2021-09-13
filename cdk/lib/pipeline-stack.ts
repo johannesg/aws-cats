@@ -36,10 +36,10 @@ export class CatsPipelineStack extends Stack {
                 buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
             },
             environmentVariables: {
-                "AWS_REGION": { value:  props!.env!.region},
-                "AWS_USER_POOL_ID": { value:  userPoolId},
-                "AWS_USER_POOL_CLIENTID": { value:  userPoolClientId},
-                "APOLLO_BASEURL": { value:  `https://${props.stack.apiDomain}/graphql` },
+                "AWS_REGION": { value: props!.env!.region },
+                "AWS_USER_POOL_ID": { value: userPoolId },
+                "AWS_USER_POOL_CLIENTID": { value: userPoolClientId },
+                "APOLLO_BASEURL": { value: `https://${props.stack.apiDomain}/graphql` },
                 "ENV_NAME": { value: props.stack.envName }
             }
         });
@@ -79,9 +79,9 @@ export class CatsPipelineStack extends Stack {
         });
 
         const deployAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
-            actionName: 'Cats_CFN_Deploy',
+            actionName: 'CFN_Deploy',
             templatePath: cdkBuildOutput.atPath(`${props.stack.stackName}.template.json`),
-            stackName: 'CatsStack',
+            stackName: props.stack.stackName,
             adminPermissions: true,
             parameterOverrides: {
                 ...props.stack.lambdaCode.assign(lambdaBuildOutput.s3Location),
