@@ -2,11 +2,16 @@ import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client'
 
 import { cache } from './cache'
 
+let _baseUrl = "";
+
+export function configure({ baseUrl }: { baseUrl: string}) {
+    _baseUrl = baseUrl;
+}
+
 export function createApolloClient(token: string) {
     return new ApolloClient({
         cache,
-        // uri: "http://localhost:3000",
-        uri: "https://catsapi.aws.jogus.io/graphql",
+        uri: _baseUrl,
         headers: {
             authorization: token
         }

@@ -1,8 +1,5 @@
-/* eslint-disable import/prefer-default-export, react/prop-types */
-import React from 'react';
+import { configure } from '../../src/apollo/client';
 
-import { ApolloProvider } from '@apollo/client'
-
-export const wrapRootElement = ({ element }) => {
-    return <TopLayout>{element}</TopLayout>;
-};
+export function onClientEntry(_, { baseUrl }) {
+    configure({ baseUrl });
+}
