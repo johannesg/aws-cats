@@ -16,12 +16,25 @@ const app = new App();
 //   }});
 
 const cats = new CatsStack(app, 'CatsStack', {
-    env
+    env,
+    domainSuffix: ""
+});
+
+const catsDev = new CatsStack(app, 'CatsStackDev', {
+    env,
+    domainSuffix: ""
 });
 
 new CatsPipelineStack(app, 'CatsPipelineStack', {
     cats,
-    env
+    env,
+    gitBranch: "master"
+});
+
+new CatsPipelineStack(app, 'CatsPipelineStackDev', {
+    cats,
+    env,
+    gitBranch: "dev"
 });
 
 new CatsResourcesStack(app, 'CatsResourcesStack', {

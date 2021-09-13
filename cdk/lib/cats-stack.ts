@@ -8,11 +8,14 @@ import { Table } from '@aws-cdk/aws-dynamodb';
 import { Fn } from '@aws-cdk/core';
 
 export interface CatsStackProps extends cdk.StackProps {
+  domainSuffix: string
 }
 
 export class CatsStack extends cdk.Stack {
   public readonly lambdaCode: S3ObjectParameter;
   public readonly appCode: S3ObjectParameter;
+  public readonly appDomain: string;
+  public readonly apiDomain: string;
 
   constructor(scope: cdk.Construct, id: string, props: CatsStackProps) {
     super(scope, id, props);
@@ -29,17 +32,19 @@ export class CatsStack extends cdk.Stack {
 
     const table = Table.fromTableArn(this, "CatsTable", Fn.importValue("cats-dynamodb-tablearn"));
 
+    this.apiDomain =  `cats-api${props.domainSuffix ?? ""}.aws.jogus.io`;
+    this.appDomain =  `cats${props.domainSuffix ?? ""}.aws.jogus.io`;
+
     const api = new CatsApi(this, "ApiApollo", {
-      domainName: "catsapi.aws.jogus.io",
+      domainName: this.apiDomain,
       zone,
       certificate: certificateRegional,
       source: this.lambdaCode.location,
       table
     });
 
-
     const site = new CatsApp(this, "AppSite", {
-      domainName: "cats.aws.jogus.io",
+      domainName: this.appDomain,
       zone,
       certificate: certificateEdge,
       source: this.appCode.location

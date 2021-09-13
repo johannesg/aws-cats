@@ -1,11 +1,12 @@
-import { Stack, Construct, StackProps } from '@aws-cdk/core';
+import { Stack, Construct, StackProps, Fn } from '@aws-cdk/core';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
 import { CatsStack } from './cats-stack';
 
 type CatsPipelineStackProps = StackProps & {
-    cats: CatsStack
+    cats: CatsStack,
+    gitBranch: string
 }
 
 export class CatsPipelineStack extends Stack {
@@ -26,11 +27,20 @@ export class CatsPipelineStack extends Stack {
             },
         });
 
+        const userPoolId = Fn.importValue("cats-user-pool-id");
+        const userPoolClientId = Fn.importValue("cats-user-pool-clientid");
+
         const appBuild = new codebuild.PipelineProject(this, 'AppBuild', {
             buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-app.yml"),
             environment: {
                 buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
             },
+            environmentVariables: {
+                "AWS_REGION": { value:  props!.env!.region},
+                "AWS_USER_POOL_ID": { value:  userPoolId},
+                "AWS_USER_POOL_CLIENTID": { value:  userPoolClientId},
+                "APOLLO_BASEURL": { value:  `https://${props.cats.apiDomain}/graphql` },
+            }
         });
 
         // Create Artifacts
@@ -45,8 +55,8 @@ export class CatsPipelineStack extends Stack {
             connectionArn: "arn:aws:codestar-connections:eu-north-1:700595718361:connection/32191430-b2de-481b-b292-0c24114045da",
             owner: 'johannesg',
             repo: 'aws-cats',
-            branch: 'master'
-          });
+            branch: props.gitBranch
+        });
 
         const lambdaBuildAction = new codepipeline_actions.CodeBuildAction({
             actionName: 'Lambda_Build',
