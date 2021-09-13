@@ -5,35 +5,28 @@ import { CatsStack } from '../lib/cats-stack';
 import { CatsPipelineStack } from '../lib/pipeline-stack';
 import { CatsResourcesStack } from '../lib/cats-resources-stack';
 
-
 const env = { account: '700595718361', region: 'eu-north-1' };
-
 const app = new App();
-// const certStack = new CertStack(app, 'CertStack', {
-//     env: { 
-//       account: process.env.CDK_DEFAULT_ACCOUNT, 
-//       region: process.env.CDK_DEFAULT_REGION 
-//   }});
 
 const cats = new CatsStack(app, 'CatsStack', {
     env,
-    domainSuffix: ""
+    envName: "PROD"
 });
 
 const catsDev = new CatsStack(app, 'CatsStackDev', {
     env,
-    domainSuffix: ""
+    envName: "DEV"
 });
 
 new CatsPipelineStack(app, 'CatsPipelineStack', {
-    cats,
     env,
+    stack: cats,
     gitBranch: "master"
 });
 
 new CatsPipelineStack(app, 'CatsPipelineStackDev', {
-    cats,
     env,
+    stack: catsDev,
     gitBranch: "dev"
 });
 

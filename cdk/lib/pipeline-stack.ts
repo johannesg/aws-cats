@@ -5,7 +5,7 @@ import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
 import { CatsStack } from './cats-stack';
 
 type CatsPipelineStackProps = StackProps & {
-    cats: CatsStack,
+    stack: CatsStack,
     gitBranch: string
 }
 
@@ -16,14 +16,14 @@ export class CatsPipelineStack extends Stack {
         const cdkBuild = new codebuild.PipelineProject(this, 'CdkBuild', {
             buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-cdk.yml"),
             environment: {
-                buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
+                buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
             }
         });
 
         const lambdaBuild = new codebuild.PipelineProject(this, 'LambdaBuild', {
             buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-api.yml"),
             environment: {
-                buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
+                buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
             },
         });
 
@@ -33,13 +33,14 @@ export class CatsPipelineStack extends Stack {
         const appBuild = new codebuild.PipelineProject(this, 'AppBuild', {
             buildSpec: codebuild.BuildSpec.fromSourceFilename("ci/build-app.yml"),
             environment: {
-                buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
+                buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
             },
             environmentVariables: {
                 "AWS_REGION": { value:  props!.env!.region},
                 "AWS_USER_POOL_ID": { value:  userPoolId},
                 "AWS_USER_POOL_CLIENTID": { value:  userPoolClientId},
-                "APOLLO_BASEURL": { value:  `https://${props.cats.apiDomain}/graphql` },
+                "APOLLO_BASEURL": { value:  `https://${props.stack.apiDomain}/graphql` },
+                "ENV_NAME": { value: props.stack.envName }
             }
         });
 
@@ -79,12 +80,12 @@ export class CatsPipelineStack extends Stack {
 
         const deployAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
             actionName: 'Cats_CFN_Deploy',
-            templatePath: cdkBuildOutput.atPath('CatsStack.template.json'),
+            templatePath: cdkBuildOutput.atPath(`${props.stack.stackName}.template.json`),
             stackName: 'CatsStack',
             adminPermissions: true,
             parameterOverrides: {
-                ...props.cats.lambdaCode.assign(lambdaBuildOutput.s3Location),
-                ...props.cats.appCode.assign(appBuildOutput.s3Location),
+                ...props.stack.lambdaCode.assign(lambdaBuildOutput.s3Location),
+                ...props.stack.appCode.assign(appBuildOutput.s3Location),
             },
             extraInputs: [lambdaBuildOutput, appBuildOutput],
         });

@@ -8,7 +8,7 @@ import { Table } from '@aws-cdk/aws-dynamodb';
 import { Fn } from '@aws-cdk/core';
 
 export interface CatsStackProps extends cdk.StackProps {
-  domainSuffix: string
+  envName: string
 }
 
 export class CatsStack extends cdk.Stack {
@@ -16,12 +16,14 @@ export class CatsStack extends cdk.Stack {
   public readonly appCode: S3ObjectParameter;
   public readonly appDomain: string;
   public readonly apiDomain: string;
+  public readonly envName: string;
 
   constructor(scope: cdk.Construct, id: string, props: CatsStackProps) {
     super(scope, id, props);
 
     this.lambdaCode = new S3ObjectParameter(this, "LambdaCode");
     this.appCode = new S3ObjectParameter(this, "AppCode");
+    this.envName = props.envName;
 
     const certificateEdge =
       Certificate.fromCertificateArn(this, "CertificateEdge", Fn.importValue("aws-jogus-certificate-edge"));
@@ -32,15 +34,23 @@ export class CatsStack extends cdk.Stack {
 
     const table = Table.fromTableArn(this, "CatsTable", Fn.importValue("cats-dynamodb-tablearn"));
 
-    this.apiDomain =  `cats-api${props.domainSuffix ?? ""}.aws.jogus.io`;
-    this.appDomain =  `cats${props.domainSuffix ?? ""}.aws.jogus.io`;
+    const domainSuffix = props.envName.toLowerCase() === "prod"
+      ? ""
+      : `-${props.envName.toLowerCase()}`;
+
+    this.apiDomain = `cats-api${domainSuffix}.aws.jogus.io`;
+    this.appDomain = `cats${domainSuffix}.aws.jogus.io`;
+
+    console.log(`Env: ${props.envName}; api domain: ${this.apiDomain}`);
+    console.log(`Env: ${props.envName}; app domain: ${this.appDomain}`);
 
     const api = new CatsApi(this, "ApiApollo", {
       domainName: this.apiDomain,
       zone,
       certificate: certificateRegional,
       source: this.lambdaCode.location,
-      table
+      table,
+      envName: props.envName
     });
 
     const site = new CatsApp(this, "AppSite", {

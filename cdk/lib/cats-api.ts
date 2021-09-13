@@ -14,13 +14,14 @@ export interface CatsApiProps {
     zone: IHostedZone
     certificate: ICertificate
     source: s3.Location
-    table: ITable
+    table: ITable,
+    envName: string
 }
 
 export class CatsApi extends cdk.Construct {
     public readonly handler : Function;
 
-    constructor(scope: cdk.Construct, id: string, { domainName, zone, certificate, source, table }: CatsApiProps) {
+    constructor(scope: cdk.Construct, id: string, { domainName, zone, certificate, source, table, envName }: CatsApiProps) {
         super(scope, id);
 
         new cdk.CfnOutput(this, 'Site', { value: 'https://' + domainName });
@@ -37,7 +38,8 @@ export class CatsApi extends cdk.Construct {
             description: `Function generated on: ${new Date().toISOString()}`,
             environment: {
                 NODE_OPTIONS: "--enable-source-maps",
-                DYNAMODB_TABLENAME: table.tableName
+                DYNAMODB_TABLENAME: table.tableName,
+                ENV_NAME: envName
             },
             timeout: Duration.seconds(30),
             memorySize: 512
