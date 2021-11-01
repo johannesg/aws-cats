@@ -1,5 +1,12 @@
 # Configure the Azure provider
 terraform {
+  backend "azurerm" {
+    container_name = "tfstate"
+    key = "terraform.tfstate"
+    storage_account_name = "tfstate5430"
+    resource_group_name = "tfstate"
+  }
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
