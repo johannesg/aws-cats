@@ -1,11 +1,11 @@
 schema: ../schema.graphql
 
 generates:
-  ./build/schema.graphql:
+  ./graphql/schema.graphql:
     plugins:
       - schema-ast
 
-  types/gen-types.ts:
+  ./graphql/types/gen-types.ts:
     config: 
       # defaultMapper: any
       showUnusedMappers: true

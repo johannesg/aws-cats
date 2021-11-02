@@ -1,7 +1,7 @@
-import { Config } from 'apollo-server'
+import { Config } from 'apollo-server-azure-functions'
 
 import { CatsAPI } from './datasources/cats'
-import { DynamoDBDataSource } from './datasources/dynamodb'
+// import { DynamoDBDataSource } from './datasources/dynamodb'
 
 import { resolvers } from './resolvers'
 
@@ -14,7 +14,7 @@ export interface ApolloContext {
 }
 
 export function createConfig(env: any, getUser : (ctx: ApolloContext) => UserExt): Config {
-    const typeDefs = readFileSync('./schema.graphql', 'utf-8');
+    const typeDefs = readFileSync('./graphql/schema.graphql', 'utf-8');
 
     return {
         typeDefs,
@@ -23,7 +23,7 @@ export function createConfig(env: any, getUser : (ctx: ApolloContext) => UserExt
             return {
                 // UserAPI: new UserAPI(containers.users),
                 CatsAPI: new CatsAPI(),
-                DynamoDB: new DynamoDBDataSource()
+                // DynamoDB: new DynamoDBDataSource()
             }
         },
         context: (ctx : ApolloContext) => {
