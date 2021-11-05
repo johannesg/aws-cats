@@ -6,13 +6,29 @@ import Layout from '../components/Layout'
 
 import { useMeQuery, useGetRandomCatsQuery, Cat, Maybe } from '../apollo/types'
 
-import { GridList, GridListTile, ListSubheader, Button, Typography, Grid, Card, makeStyles, CardMedia, CardHeader, CardActions, IconButton, CardContent, Box, LinearProgress } from '@material-ui/core'
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
-import ThumbDownIcon from '@material-ui/icons/ThumbDown';
+import {
+  ImageList,
+  ImageListItem,
+  ListSubheader,
+  Button,
+  Typography,
+  Grid,
+  Card,
+  CardMedia,
+  CardHeader,
+  CardActions,
+  IconButton,
+  CardContent,
+  Box,
+  LinearProgress,
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 
 import catList from '../cats';
-import { green, red } from '@material-ui/core/colors';
+import { green, red } from '@mui/material/colors';
 import { NetworkStatus } from '@apollo/client';
 
 const useStyles = makeStyles((theme) => ({
@@ -68,25 +84,27 @@ function Header() {
 function CatCard({ item }: { item: Maybe<Cat> }) {
   const classes = useStyles();
 
-  return <Card className={classes.card}>
-    {/* <CardHeader title="Some Cat"></CardHeader> */}
-    <CardMedia
-      className={classes.media}
-      image={item.url}
-      title="Paella dish"
-    />
-    <CardActions>
-      <IconButton className={classes.favourite}>
-        <FavoriteIcon />
-      </IconButton>
-      <IconButton className={classes.thumbUp}>
-        <ThumbUpIcon />
-      </IconButton>
-      <IconButton className={classes.thumbDown}>
-        <ThumbDownIcon />
-      </IconButton>
-    </CardActions>
-  </Card>
+  return (
+    <Card className={classes.card}>
+      {/* <CardHeader title="Some Cat"></CardHeader> */}
+      <CardMedia
+        className={classes.media}
+        image={item.url}
+        title="Paella dish"
+      />
+      <CardActions>
+        <IconButton className={classes.favourite} size="large">
+          <FavoriteIcon />
+        </IconButton>
+        <IconButton className={classes.thumbUp} size="large">
+          <ThumbUpIcon />
+        </IconButton>
+        <IconButton className={classes.thumbDown} size="large">
+          <ThumbDownIcon />
+        </IconButton>
+      </CardActions>
+    </Card>
+  );
 }
 
 function App() {

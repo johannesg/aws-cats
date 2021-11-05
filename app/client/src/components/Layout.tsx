@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react';
-import { Button, Grid, IconButton, makeStyles, Toolbar, Typography } from '@material-ui/core'
-import { AppBar } from '@material-ui/core'
-import MenuIcon from '@material-ui/icons/Menu'
+import { Button, Grid, IconButton, Toolbar, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { AppBar } from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu'
 import { logout, subscribeToUser, UserInfo } from '../auth';
 import NotLoggedIn from '../components/Layout/NotLoggedIn';
 
@@ -41,24 +42,31 @@ export default ({ title, children }: LayoutProps) => {
         });
     }, []);
 
-    return <Grid container>
-        <Grid item xs={12}>
-            <AppBar position="static">
-                <Toolbar>
-                    <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" className={classes.title}>
-                        {title}
-                    </Typography>
-                    <Profile user={user}/>
-                </Toolbar>
-            </AppBar>
+    return (
+        <Grid container>
+            <Grid item xs={12}>
+                <AppBar position="static">
+                    <Toolbar>
+                        <IconButton
+                            edge="start"
+                            className={classes.menuButton}
+                            color="inherit"
+                            aria-label="menu"
+                            size="large">
+                            <MenuIcon />
+                        </IconButton>
+                        <Typography variant="h6" className={classes.title}>
+                            {title}
+                        </Typography>
+                        <Profile user={user}/>
+                    </Toolbar>
+                </AppBar>
+            </Grid>
+            <Grid item xs={false} sm={2} />
+            <Grid item container xs={12} sm={8}>
+                {children}
+            </Grid>
+            <Grid item xs={false} sm={2} />
         </Grid>
-        <Grid item xs={false} sm={2} />
-        <Grid item container xs={12} sm={8}>
-            {children}
-        </Grid>
-        <Grid item xs={false} sm={2} />
-    </Grid>
+    );
 }

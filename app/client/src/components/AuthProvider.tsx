@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { useState, useEffect, PropsWithChildren } from "react"
 
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 
 import { ApolloProvider } from "@apollo/client"
 import { createApolloClient } from '../apollo/client';
 import { subscribeToUser, UserInfo } from '../auth';
-import { Container, Grid } from '@material-ui/core';
+import { Container, Grid } from '@mui/material';
 
 type AuthProps = {
   children: React.ReactNode

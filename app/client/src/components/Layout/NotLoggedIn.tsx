@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { useState } from 'react';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import { login } from '../../auth';
-import { makeStyles } from '@material-ui/styles';
-import { Checkbox, FormControlLabel, Grid, Link, Theme, Typography } from '@material-ui/core';
+import { makeStyles } from '@mui/styles';
+import { Checkbox, FormControlLabel, Grid, Link, Theme, Typography } from '@mui/material';
 import { Controller, useForm } from "react-hook-form";
 
 

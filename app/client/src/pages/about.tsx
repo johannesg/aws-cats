@@ -1,4 +1,5 @@
-import { Container, makeStyles, Typography } from "@material-ui/core"
+import { Container, Typography } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
 import * as React from 'react'
 import Layout from '../components/Layout'
 

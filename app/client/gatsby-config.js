@@ -24,7 +24,7 @@ module.exports = {
     },
     'top-layout',
     {
-      resolve: 'gatsby-plugin-material-ui',
+      resolve: 'gatsby-plugin-mui-emotion',
       // If you want to use styled components you should change the injection order.
       options: {
         // stylesProvider: {

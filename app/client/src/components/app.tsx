@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import { useMeQuery, useGetRandomCatsQuery } from '../apollo/types'
 
-import { GridList, GridListTile, ListSubheader, Button, Typography } from '@material-ui/core'
+import { ImageList, ImageListItem, ListSubheader, Button, Typography } from '@mui/material'
 import { AuthContext } from '../components/AuthProvider';
 import { useContext } from 'react';
 
@@ -23,18 +23,18 @@ function RandomCat() {
     if (loading)
         return <Typography variant="subtitle1">Loading random cat</Typography>;
 
-    return (<GridList cellHeight={160} cols={3}>
-        <GridListTile key="Subheader" cols={2} style={{ height: 'auto' }}>
+    return (<ImageList cellHeight={160} cols={3}>
+        <ImageListItem key="Subheader" cols={2} style={{ height: 'auto' }}>
           <ListSubheader component="div">Here are your stupid cats</ListSubheader>
-        </GridListTile>
-        <GridListTile key="Subheader" cols={1} style={{ height: 'auto' }}>
+        </ImageListItem>
+        <ImageListItem key="Subheader" cols={1} style={{ height: 'auto' }}>
           <Button color="primary" onClick={() => refetch()}>Give me some new cats</Button>
-        </GridListTile>
+        </ImageListItem>
         {data?.cats?.random?.map(cat => (
-            <GridListTile key={cat?.id} cols={1}>
+            <ImageListItem key={cat?.id} cols={1}>
                 <img src={cat?.url} />
-            </GridListTile>))}
-        </GridList>)
+            </ImageListItem>))}
+        </ImageList>)
 }
 
 export default function App() {
