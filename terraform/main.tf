@@ -22,12 +22,12 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "TerraformTestRG"
+  name     = "awesome-cats"
   location = "northeurope"
 }
 
-resource "azurerm_static_site" "cats" {
-  name                = "cats"
+resource "azurerm_static_site" "cats-app" {
+  name                = "cats-app"
   location            = "westeurope"
   resource_group_name = azurerm_resource_group.rg.name
   sku_size            = "Free"
