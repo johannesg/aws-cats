@@ -4,7 +4,7 @@ import { Button, Grid, IconButton, Toolbar, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { AppBar } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
-import { logout, subscribeToUser, UserInfo } from '../auth';
+// import { logout, subscribeToUser, UserInfo } from '../auth';
 import NotLoggedIn from '../components/Layout/NotLoggedIn';
 
 type LayoutProps = {
@@ -25,21 +25,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function Profile({ user }: { user?: UserInfo }) {
-    if (!user)
-        return <NotLoggedIn/>
-    else
-        return <Button color="inherit" onClick={() => logout()}>Logout</Button>
-}
+// function Profile({ user }: { user?: UserInfo }) {
+//     if (!user)
+//         return <NotLoggedIn/>
+//     else
+//         return <Button color="inherit" onClick={() => logout()}>Logout</Button>
+// }
 
 export default ({ title, children }: LayoutProps) => {
     const classes = useStyles();
-    const [user, setUser] = useState<UserInfo | undefined>();
+    // const [user, setUser] = useState<UserInfo | undefined>();
 
     useEffect(() => {
-        return subscribeToUser(({ user }) =>  {
-                setUser(user);
-        });
+        // return subscribeToUser(({ user }) =>  {
+        //         setUser(user);
+        // });
     }, []);
 
     return (
@@ -58,7 +58,7 @@ export default ({ title, children }: LayoutProps) => {
                         <Typography variant="h6" className={classes.title}>
                             {title}
                         </Typography>
-                        <Profile user={user}/>
+                        {/* <Profile user={user}/> */}
                     </Toolbar>
                 </AppBar>
             </Grid>

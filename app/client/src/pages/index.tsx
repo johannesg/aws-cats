@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { useState, useEffect, useContext } from "react"
 
-import AuthProvider, { AuthContext } from '../components/AuthProvider';
+// import AuthProvider, { AuthContext } from '../components/AuthProvider';
+// import AuthProvider  from '../components/AzureAuthProvider';
 import Layout from '../components/Layout'
 
 import { useMeQuery, useGetRandomCatsQuery, Cat, Maybe } from '../apollo/types'
@@ -61,19 +62,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Header() {
-  const authInfo = useContext(AuthContext);
+  // const authInfo = useContext(AuthContext);
   const classes = useStyles();
 
   const { loading, error, data } = useMeQuery();
 
-  let username = authInfo.user.username;
+  // let username = authInfo.user.username;
 
+  let username = "asshole";
 
   if (!loading && data?.me?.id)
     username = data?.me?.id;
 
   return <Typography className={classes.header} variant="h5" align="center" component="h1" gutterBottom>
     Hello {username}. Here's some cats
+    {/* Hello asshole. Here's some cats */}
    </Typography>
 
   // return <Typography className={classes.header} variant="h5" align="center" component="h1" gutterBottom>
@@ -138,9 +141,7 @@ function App() {
 export default function Index() {
   return (
     <Layout title="Cats V3">
-      <AuthProvider>
         <App />
-      </AuthProvider>
     </Layout>
   );
 }

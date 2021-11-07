@@ -32,6 +32,8 @@
     "@apollo/client": "^3.3.7",
     "@aws-amplify/auth": "^4.3.0",
     "@aws-amplify/ui-react": "^1.2.0",
+    "@azure/msal-browser": "^2.19.0",
+    "@azure/msal-react": "^1.1.1",
     "@emotion/react": "^11.5.0",
     "@emotion/server": "^11.4.0",
     "@emotion/styled": "^11.3.0",

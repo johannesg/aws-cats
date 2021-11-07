@@ -8,32 +8,27 @@ module.exports = {
   },
   // flags: { PRESERVE_WEBPACK_CACHE: true },
   plugins: [
-    {
-      resolve: 'amplify',
-      options: {
-        region: process.env.AWS_REGION,
-        userPoolId: process.env.AWS_USER_POOL_ID,
-        userPoolWebClientId: process.env.AWS_USER_POOL_CLIENTID
-      }
-    },
+    // If you want to use styled components you should add the plugin here.
+    // 'gatsby-plugin-styled-components',
+    // {
+    //   resolve: 'amplify',
+    //   options: {
+    //     region: process.env.AWS_REGION,
+    //     userPoolId: process.env.AWS_USER_POOL_ID,
+    //     userPoolWebClientId: process.env.AWS_USER_POOL_CLIENTID
+    //   }
+    // },
     {
       resolve: 'apollo',
       options: {
-        baseUrl: process.env.APOLLO_BASEURL
+        // baseUrl: process.env.APOLLO_BASEURL
+        // baseUrl: "/api/graphql"
+        baseUrl: "http://localhost:7071/api/graphql"
       }
     },
+    "identity-azure",
+    'gatsby-plugin-mui-emotion',
     'top-layout',
-    {
-      resolve: 'gatsby-plugin-mui-emotion',
-      // If you want to use styled components you should change the injection order.
-      options: {
-        // stylesProvider: {
-        //   injectFirst: true,
-        // },
-      },
-    },
-    // If you want to use styled components you should add the plugin here.
-    // 'gatsby-plugin-styled-components',
     'gatsby-plugin-react-helmet',
   ],
 };

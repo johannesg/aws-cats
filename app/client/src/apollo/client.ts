@@ -12,9 +12,9 @@ export function createApolloClient(token: string) {
     return new ApolloClient({
         cache,
         uri: _baseUrl,
-        headers: {
-            authorization: token
-        }
+        // headers: {
+        //     authorization: token
+        // }
     });
 }
     
